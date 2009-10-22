@@ -245,7 +245,7 @@ class Thing < ActiveRecord::Base
 
     #attach name and thing_type
     @tag_list = [{:key=>'name',:value=>self.name},
-      {:key=>'thing_type',:value=>self.thing_type.value}]
+      {:key=>'thing_type',:value=>(self.thing_type.nil? ? self.thing_type : self.thing_type.value)}]
 
     self.tags.each do |tg|
 

@@ -122,7 +122,7 @@ class ThingsController < ApplicationController
       @thing[:member]=Thing.find_all_by_parent_id(@thing.id).collect do |th|
         { :id=>th.id,
           :name=>th.name,
-          :thing_type=>th.thing_type.value
+          :thing_type=>(th.thing_type.nil? ? th.thing_type : th.thing_type.value)
         }
       end
 
@@ -135,6 +135,7 @@ class ThingsController < ApplicationController
       @thing[:member].each do |m|
         if session[:search] then
           #parse out seatch terms
+          
           #determine if current member is itself a match
           if @thing.create_member_match(:search=>session[:search]).fv(:member).collect do |thpm|
               thpm.th.fv(:target)[0].th.fv(:target)[0]
