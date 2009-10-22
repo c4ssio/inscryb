@@ -1,0 +1,37 @@
+<span class="members">Members</span>
+<span class="tags">
+  <%=link_to("Tags",thing_url(:id=>@thing[:id],:context=>'tag_list'))%>
+</span>
+<%if session[:mode]=='edit'%>
+<%= render :partial=>'add_thing' %>
+<%end%>
+<!--member layer-->
+  <div class="member">
+    <table class="member">
+      <% @thing[:member].each do |m|%>
+        <% if m[:member] || (m[:match] && (m[:match].length>0 || m[:is_match]))
+          #for searches, only include member matches or members with matches%>
+          <tr class="member">
+            <td class="member">
+              <div class="member">
+                <%if @thing[:mode]=='edit'%><span>Del</span><span>Cut</span><span>Cpy</span><%end%>
+                 <%=link_to(m[:name],thing_url(:id=>m[:id])) %>
+                <span>
+                  <%if (m[:member] && m[:member].length>0)%>
+                    <%="(" + m[:member].length.to_s +
+                      " thing" + ("s" if m[:member].length>1).to_s +
+                      " )"%>
+                  <%elsif m[:match] && m[:match].length>0%>
+                    <%="(" + m[:match].length.to_s +
+                      " match" + ("es" if m[:match].length>1).to_s +
+                      " )"%>
+                  <%end%>
+                </span>
+              </div>
+            </td>
+          </tr>
+        <%end%>
+      <%end%>
+    </table>
+  </div>
+

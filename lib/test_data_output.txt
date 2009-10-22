@@ -1,0 +1,109 @@
+thing_id	thing_type	name	type	type	address	part of	located in	of	in	on	under	at	color	color	age	brand	condition	length	height	width	price	weight
+1	place	World	planet																			
+2	place	North America	region		North America				ROW1													
+3	place	United States	country		United States				ROW2													
+4	place	California	state		California				ROW3													
+5	place	san francisco	city		"san francisco, ca"				ROW4													
+6	place	tenderloin	neighborhood		"tenderloin, sf"				ROW5													
+7	place	soma	neighborhood		"soma, sf"				ROW5													
+8	place	mission bay	neighborhood		"mission bay, sf"				ROW5													
+9	place	nob hill	neighborhood		"nob hill, sf"				ROW5													
+10	place	union square	neighborhood		"union square, sf"				ROW5													
+11	place	polk & ofarrell	cross street		"polk & ofarrell, sf"				ROW6													
+12	place	polk & geary	cross street		"polk & geary, sf"				ROW6													
+13	place	polk & post	cross street		"polk & post, sf"				ROW6													
+14	place	polk & sutter	cross street		"polk & sutter, sf"				ROW6													
+15	place	van ness & ofarrell	cross street		"van ness & ofarrell, sf"				ROW6													
+16	place	van ness & geary	cross street		"van ness & geary, sf"				ROW6													
+17	place	van ness & post	cross street		"van ness & post, sf"				ROW6													
+18	place	van ness & sutter	cross street		"van ness & sutter, sf"				ROW6													
+19	place	howard & fremont	cross street		"howard & fremont, sf"				ROW7													
+20	place	howard & beale	cross street		"howard & beale, sf"				ROW7													
+21	place	mission & fremont	cross street		"mission & fremont, sf"				ROW7													
+22	place	mission & beale	cross street		"mission & beale, sf"				ROW7													
+23	place	4th & townsend	cross street		"4th & townsend, sf"				ROW8													
+24	place	3rd & townsend	cross street		"3rd & townsend, sf"				ROW8													
+25	place	4th & king	cross street		"4th & king, sf"				ROW8													
+26	place	4th & berry	cross street		"4th & berry, sf"				ROW8													
+27	place	polk & sacramento	cross street		"polk & sacramento, sf"				ROW9													
+28	place	polk & california	cross street		"polk & california, sf"				ROW9													
+29	place	larkin & geary	cross street		"larkin & geary, sf"				ROW6													
+30	place	larkin & ofarrell	cross street		"larkin & ofarrell, sf"				ROW6													
+31	place	geary & powell	cross street		"geary & powell, sf"				ROW10													
+32	place	great american music hall	performance venue		"859 Ofarrell St, sf"					ROW11												
+33	place	bread and butter market	convenience store	corner store	"888 Ofarrell St #105, sf"					ROW11												
+34	place	trinity towers	building		"888 Ofarrell St, sf"					ROW11												
+35	place	lobby	room						ROW34													
+36	place	amc van ness	movie theater		"1000 van ness, sf"					ROW15												
+37	place	quetzal internet café	coffee shop		"234 Polk St, sf"					ROW14												
+38	place	crunch fitness	gym		"1000 Van Ness, sf"					ROW15												
+39	place	polk valley cleaners	dry cleaning & laundry							ROW12												
+40	place	corner store	convenience store	corner store						ROW13												
+41	place	thai restaurant	thai restaurant	restaurant						ROW11												
+42	place	lers ros	thai restaurant	restaurant						ROW30												
+43	place	thai house express	thai restaurant	restaurant						ROW29												
+44	place	lush lounge	bar							ROW13												
+45	place	hemlock tavern	bar	performance venue						ROW13												
+46	place	furniture store	furniture store	store						ROW16												
+47	place	2nd floor	building floor			ROW46																
+48	place	apartment	apartment						ROW34													
+49	place	kitchen	room						ROW48													
+50	place	199 Fremont	building							ROW19												
+51	place	sushi place	restaurant							ROW19												
+52	place	quizno's	restaurant							ROW19												
+53	place	quizno's	restaurant							ROW22												
+54	place	starbucks	coffee shop							ROW20												
+55	place	starbucks	coffee shop							ROW21												
+56	place	safeway	grocery store							ROW25												
+57	place	tan bella	tanning salon							ROW25												
+58	place	starbucks	coffee shop							ROW25												
+59	place	philz coffee	coffee shop							ROW26												
+60	place	hair salon	hair salon							ROW19												
+61	place	falafel place	restaurant							ROW22												
+62	place	washington mutual	bank							ROW28												
+63	place	corner store	convenience store	corner store						ROW28												
+64	place	sidewalk	sidewalk							ROW11												
+65	place	sidewalk	sidewalk							ROW12												
+66	place	sidewalk	sidewalk							ROW15												
+67	place	sidewalk	sidewalk							ROW25												
+68	place	sidewalk	sidewalk							ROW27												
+69	place	brownie's hardware	hardware store		"1563 Polk St, San Francisco, CA?"					ROW27												
+70	place	auto shop	auto repair							ROW12												
+71	item	cupboard	cupboard				ROW48															
+72	item	coffee cup	cup						ROW71				red		old	coaltrain		0.07m	0.16m	0.07m		
+73	item	handle	handle			ROW72																
+74	item	label	label			ROW72																
+75	item	box	box						ROW71													
+76	item	teapot	teapot						ROW75													
+77	item	lid	lid			ROW76																
+78	item	blue honda	car						ROW70				blue			honda						
+79	item	tire	tire			ROW78										goodyear	flat					
+80	item	coffee cup	cup						ROW78							solo						
+81	item	socket wrench	wrench						ROW70						new							
+82	item	trash can	trash can							ROW64												
+83	item	trash can	trash can							ROW65												
+84	item	mailbox	mailbox							ROW64												
+85	item	chair	chair	furniture						ROW47												
+86	item	couch	couch	furniture						ROW48												
+87	item	plate	plate						ROW71													
+88	item	paper	paper						ROW83													
+89	item	loaf of bread	bread	food					ROW33													
+90	item	milk	carton	drink					ROW33													
+91	item	beer	bottle	drink					ROW33													
+92	item	cup of coffee	cup	drink					ROW33				white									
+93	item	cup of coffee	cup	drink					ROW54				white	green								
+94	item	cup of coffee	cup	drink					ROW55				white	green								
+95	item	street sign	street sign	sign						ROW64												
+96	item	thai iced coffee	glass	drink					ROW41													
+97	item	thai iced coffee	glass	drink					ROW43													
+98	item	thai iced coffee	glass	drink					ROW42													
+99	place	4th floor	building floor						ROW50													
+100	place	StarMine office	office							ROW99												
+101	item	desk							ROW100													
+102	item	office chair	chair	furniture					ROW100													
+103	item	coffee machine	appliance	furniture			ROW100															
+104	item	carpet	furniture						ROW100		ROW101											
+105	place	floor	surface						ROW100		ROW104											
+106	place	wall	surface						ROW100													
+107	item	cup rack	furniture							ROW106												
+108	item	cup	cup						ROW107				white								10.0dollars	120g

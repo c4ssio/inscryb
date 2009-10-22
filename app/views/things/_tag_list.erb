@@ -1,0 +1,27 @@
+<span class="members">
+  <%=link_to("Members",thing_url(:id=>@thing[:id],:context=>'members'))%>
+</span>
+<span class="tags">Tags</span>
+<%if session[:mode]=='edit'%>
+<%=render :partial=>'add_tag'%>
+<%end%>
+<div class="tag_list">
+  <table class="tag_list">
+    <%@thing[:tag_list].each do |tg|%>
+      <tr class="tag_list">
+        <%if session[:mode]=='edit'%>
+        <td><%=link_to('Del',delete_tag_url(:thing_id=>@thing[:id],:key=>tg[:key],:value=>tg[:value]))%>
+          <%=link_to('Cut',cut_tag_url(:thing_id=>@thing[:id],:key=>tg[:key],:value=>tg[:value]))%>
+          <%=link_to('Cpy',copy_tag_url(:thing_id=>@thing[:id],:key=>tg[:key],:value=>tg[:value]))%>
+        </td>
+        <%end%>
+        <td class="tag_list_key">
+          <%=tg[:key]%>
+        </td>
+        <td class="tag_list_value">
+            <span><%=tg[:value]%></span>
+        </td>
+      </tr>
+    <%end%>
+  </table>
+</div>

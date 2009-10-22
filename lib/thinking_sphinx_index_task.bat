@@ -1,0 +1,2 @@
+cd\inscryb_local
+rake thinking_sphinx:index

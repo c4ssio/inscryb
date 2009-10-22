@@ -1,0 +1,10 @@
+<%form_for(:thing, @thing, :url=>add_tag_url(:id=>@thing)) do |f|%>
+<span>Add Tag</span>
+  <div class="new_tag_key"><span>Key</span>
+    <%=f.text_field(:key, :size=>20)%>
+  </div>
+  <div class="new_tag_value"><span>Value</span>
+    <%=f.text_field(:value, :size=>20)%>
+  </div>
+    <%=submit_tag('Add Tag')%>
+<%end -%>

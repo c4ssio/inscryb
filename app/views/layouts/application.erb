@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title>Inscryb</title>
+    <%= stylesheet_link_tag "main", :media => "all" %>
+    <%= javascript_include_tag :defaults%>
+  </head>
+  <body>
+    <div class="dialog" id="dialog">
+      <!-- controls layer -->
+      <div class="controls">
+        <span class="actions"><%= link_to_remote "Actions", :update=>'actions', :url=>thing_url(:id=>@thing[:id])%></span>
+        <span class="edit">
+          <%if session[:mode]=='show'%>
+            <%=link_to("Edit",edit_thing_url(:id=>@thing[:id]))-%>
+          <%elsif session[:mode]=='edit'%>
+            <%=link_to("Done",thing_url(:id=>@thing[:id],:mode=>'show'))-%>
+          <%end%>
+        </span>
+      </div>
+      <!-- path layer -->
+      <div class="path">
+        <% @thing[:path].each do |thp|%>
+          <%if thp==@thing[:path].last%>
+            <div class="target"><%=h thp[:name]-%></div>
+            <%if session[:mode]=='edit'%>
+            <%=link_to('Del',thing_url(:id=>@thing[:id]),:method=>'delete')-%>
+          <%=link_to('Cut',cut_thing_url(:id=>@thing[:id]))-%>
+          <%=link_to('Cpy',copy_thing_url(:id=>@thing[:id]))-%>
+            <%end%>
+          <% else %>
+            <%=link_to(thp[:name],thing_url(:id=>thp[:id]))-%>
+            <span>&gt;</span>
+          <% end %>
+        <%end%>
+      </div>
+      <!--main view-->
+      <%=yield %>
+      <div class="context">
+        <%=render :partial=>session[:context]-%>
+      </div>
+    </div>
+  </body>
+</html>
