@@ -1,6 +1,7 @@
 class CreateThingPaths < ActiveRecord::Migration
   def self.up
     create_table :thing_paths do |t|
+      t.integer :target
       t.integer :node01
       t.integer :node02
       t.integer :node03
