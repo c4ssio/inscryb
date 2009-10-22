@@ -27,9 +27,11 @@ class Thing < ActiveRecord::Base
   end
 
   def child_thing_paths
-    depth=ThingPath.find_by_target(self.id).nodes.length
+    #get depth of self as parent
+    depth=ThingPath.find_by_target(self.id).nodes.length + 1
     return [] if depth == 0
-    return eval('ThingPath.find_all_by_node' + depth.to_s.rjust(2,'0'))
+    return eval('ThingPath.find_all_by_node' +
+      depth.to_s.rjust(2,'0').to_s + '(' +self.id.to_s + ')')
   end
 
   def create_thing_path
