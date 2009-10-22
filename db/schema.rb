@@ -12,8 +12,8 @@
 ActiveRecord::Schema.define(:version => 20091018202502) do
 
   create_table "old_tags", :force => true do |t|
-    t.integer  "thing_id",                                                                 :null => false
-    t.string   "key",        :limit => 30,                                 :default => "", :null => false
+    t.integer  "thing_id",                                                 :null => false
+    t.string   "key",        :limit => 30,                                 :null => false
     t.string   "term",       :limit => 30
     t.string   "blurb"
     t.decimal  "number",                   :precision => 18, :scale => 15
@@ -35,8 +35,8 @@ ActiveRecord::Schema.define(:version => 20091018202502) do
   end
 
   create_table "tags", :force => true do |t|
-    t.integer  "thing_id",                                                                 :null => false
-    t.string   "key",        :limit => 30,                                 :default => "", :null => false
+    t.integer  "thing_id",                                                 :null => false
+    t.string   "key",        :limit => 30,                                 :null => false
     t.string   "term",       :limit => 30
     t.string   "blurb"
     t.decimal  "number",                   :precision => 18, :scale => 15
@@ -46,15 +46,16 @@ ActiveRecord::Schema.define(:version => 20091018202502) do
   end
 
   create_table "term_group_members", :force => true do |t|
-    t.integer "term_group_id",                               :null => false
-    t.string  "value",         :limit => 30, :default => "", :null => false
+    t.integer "term_group_id",               :null => false
+    t.string  "value",         :limit => 30, :null => false
   end
 
   create_table "term_groups", :force => true do |t|
-    t.string "name", :default => "", :null => false
+    t.string "name", :null => false
   end
 
   create_table "thing_paths", :force => true do |t|
+    t.integer  "target"
     t.integer  "node01"
     t.integer  "node02"
     t.integer  "node03"
@@ -80,7 +81,7 @@ ActiveRecord::Schema.define(:version => 20091018202502) do
   end
 
   create_table "thing_types", :force => true do |t|
-    t.string "value", :limit => 30, :default => "", :null => false
+    t.string "value", :limit => 30, :null => false
   end
 
   create_table "things", :force => true do |t|
