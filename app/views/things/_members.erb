@@ -10,7 +10,8 @@
     <table class="member">
       <% @thing[:member].each do |m|%>
         <% if m[:member] || (m[:match] && (m[:match].length>0 || m[:is_match]))
-          #for searches, only include member matches or members with matches%>
+          #for searches, only include member matches or members with matches
+        %>
           <tr class="member">
             <td class="member">
               <div class="member">
