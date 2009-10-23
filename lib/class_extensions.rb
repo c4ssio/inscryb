@@ -30,6 +30,9 @@
     def rel
       return Relationship.find(self)
     end
+    def pth
+      return ThingPath.find_by_target(self)
+    end
   end
   class BigDecimal
     def tag_value_type
