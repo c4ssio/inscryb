@@ -1,7 +1,7 @@
     <!--search layer-->
     <%form_tag(thing_url(@thing[:id]),{:method=>'get', :id=>'thing_form'}) do%>
     <div class="search">
-        <p><%=text_field(:session,:search, :size=>20)%><%= submit_tag 'Search' %></p>
+        <p><%=text_field(:thing,:search, :size=>20)%><%= submit_tag 'Search' %></p>
       </div>
     <%end -%>
    
