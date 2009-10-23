@@ -132,14 +132,17 @@ class ThingsController < ApplicationController
       #if not, simply get every member and count the number of members beneath them to get the
       # thing count displayed in the front end
 
+      if session[:search]
+        @all_matches = Thing.search(session[:search])
+        @member_matches = @thing.child_paths.select{|chpth| @all_matches.include?(chpth.target)}
+        depth_str = @thing.parent_path.length.rjust(2,'0')
+      end
+
       @thing[:member].each do |m|
         if session[:search] then
-          #parse out seatch terms
+          m[:member]=@member_matches.select{|mm| 
+            eval('mm.node#{depth_str}==@thing.id')}.collect{|mm| {:id=>mm.target} }
           
-          #determine if current member is itself a match
-          if @thing.create_member_match(:search=>session[:search]).fv(:member).collect do |thpm|
-              thpm.th.fv(:target)[0].th.fv(:target)[0]
-            end.include?(m[:id]) then m[:is_match]=true end
         else
           #collect children
           m[:member]=Thing.find_all_by_parent_id(m[:id]) do |th|
@@ -148,17 +151,10 @@ class ThingsController < ApplicationController
         end
       end
     
-      #sort either by match score desc or by number of members desc, so that the best
-      #matches OR the most populated places get sorted to the top
+      #sort by number of members desc, so that the most matches/members
+      #get sorted to the top
       @thing[:member]=@thing[:member].sort_by do |m|
-        if session[:search] then
-          chk = (m[:match].collect do |mm|
-              mm[:match_score]
-            end.join('+'))
-          eval(chk) || 0.0
-        else
           m[:member].length
-        end
       end.reverse
 
     elsif session[:context]=='tag_list'
