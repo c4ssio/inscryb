@@ -26,107 +26,56 @@ class Thing < ActiveRecord::Base
     return path
   end
 
-  def child_thing_paths
+  def child_paths
     #get depth of self as parent
-    depth=ThingPath.find_by_target(self.id).nodes.length + 1
+    depth=self.id.pth.nodes.length + 1
     return [] if depth == 0
-    return eval('ThingPath.find_all_by_node' +
-      depth.to_s.rjust(2,'0').to_s + '(' +self.id.to_s + ')')
+    return eval("ThingPath.find_all_by_node#{depth.to_s.rjust(2,'0')}(#{self.id.to_s})")
   end
 
-  def create_thing_path
-    expr_string = "ThingPath.find_or_create_by_target"
-    i=1
-    path = [self.id] + self.parent_path
-    path.each do |n|
-      node_string=("node" + i.to_s.rjust(2,'0'))
-      expr_string += ("_and_" + node_string)
-      i+=1
-    end
-    #ends at 20 since that is the max number of nodes
-    j=i
-    (i..20).each do
-      node_string=("node" + j.to_s.rjust(2,'0'))
-      expr_string += ("_and_" + node_string)
-      j+=1
-    end
-
-    #creates 
-    nil_array = []
-    (20-(i-1)).times {nil_array << 'nil'}
-
-    expr_string += "(#{path.join(',')+','+nil_array.join(',')})"
-    puts expr_string
-    eval(expr_string)
-
-  end
-
-  def find_related(args={},s=20, d=1, p=self.id)
-    #this is used to return an array of related things, with relationship given by args[:group]
-    #used by create_thing_path to generate the thing_path thing
-
-    #args include [:group] (for user input) and node_list (for output)
-    #p is the previous node, which has the relationship with the current
-    #s is the number of steps left, d is the number of steps elapsed.  both need
-    #to be local vars instead of args to allow them to change w context
-    
-    args[:node_list] ||= []
-    args[:group] ||= ['thing_key_child','thing_key_parent']
-    args[:group]=Array(args[:group])
-    
-    group_names = String.new
-    #convert array to SQL args
-    group_names = args[:group].collect {|g| "'#{g}',"}.to_s.chop
-    
-    #this ensures that the parent does not end up on both sides of the row
-    sql_parent = "JOIN tag_values tv on tv.id = tg.tag_value_id
-      AND tv.thing_id != #{p}"
-    
-    #find out the term ids of groups in the argument
-    sql_thing_tag="SELECT DISTINCT tht.*
-      FROM thing_tags tht
-      JOIN tags tg ON tht.tag_id = tg.id   AND tht.active_flag = 1 
-      #{sql_parent}
-      #join to an thing of type group
-      JOIN thing_tags gthtptht
-      JOIN tags gthtptg ON gthtptg.id = gthtptht.tag_id
-      JOIN tag_values gthtptv ON gthtptv.id = gthtptg.tag_value_id
-      JOIN terms gthtptr ON gthtptr.id = gthtptv.term_id AND gthtptr.value = 'group'
-      #whose name is supplied by the method argument
-      JOIN thing_tags gthtn ON gthtn.thing_id = gthtptht.thing_id
-      JOIN tags gtgn ON gtgn.id = gthtn.tag_id
-      JOIN tag_values gtvn on gtvn.id = gtgn.tag_value_id
-      JOIN terms gktrn ON gktrn.id = gtgn.key_term_id AND gktrn.value='name'
-      JOIN terms gtvtrn ON gtvtrn.id = gtvn.term_id and gtvtrn.value IN (#{group_names})
-      #and whose members are keys to tags on the target thing
-      JOIN thing_tags gthtm ON gthtm.thing_id = gthtptht.thing_id
-      JOIN tags gtgm ON gtgm.id = gthtm.tag_id
-      JOIN tag_values gtvm on gtvm.id = gtgm.tag_value_id and gtvm.term_id = tg.key_term_id
-      JOIN terms gktrm ON gktrm.id = gtgm.key_term_id AND gktrm.value='member'
-      #and whose thing is the target thing
-      WHERE tht.thing_id = #{self.id}"
-    
-    # find out thing_tags which contain the term ids of the argument groups
-    @thing_tags  = ThingTag.find_by_sql(sql_thing_tag)
-
-    #if no more steps, then simply return args[:node_list]
-    if s != 0
-      #decrement steps for next search level
-      next_s = s-1
-      next_d = d+1
-      @thing_tags.each do |tht|
-        # break the loop if the thing id in :until key is found
-        args[:break]==true ? break : ''
-        p = tht.thing.id
-        v = tht.tag.tag_value.thing_id
-        r = tht.tag.key
-        args[:node_list].push({:p=>p,:r=>r,:v=>v,:d=>d})
-        # if the thing id in :until key is found, set args[:break]= true for the recursive loop to break next time
-        args[:until]==v ?  args[:break]= true : ''
-        Thing.find(v).find_related(args,next_s,next_d,p)
+  def create_path
+    path = self.parent_path
+    #determine whether old paths exist for this thing; if so, they should be removed
+    old_paths=Array(self.id.pth).select{|thpth|
+      thpth.nodes.last != self.parent_id}
+    old_paths.each do |opth|
+        old_nodes = opth.nodes
+        #determine whether other paths exist under this thing
+        #with a different path and updates them
+        depth_str=(old_nodes.length+1).to_s.rjust(2,'0')
+        parent_depth_str=old_nodes.length.to_s.rjust(2,'0')
+        self.child_paths.select{|chpth|
+          eval('chpth.node' + depth_str)==self.id &&
+            eval('chpth.node' + parent_depth_str)!=self.parent_id}.each do |chpth|
+              ch_nodes=chpth.nodes
+              #new path consists of new self path path + whatever path the child had after self
+              ch_path=path + ch_nodes[ch_nodes.index(self.id)..ch_nodes.length]
+              i=1
+              ch_path.each do |n|                
+                 eval("chpth.node#{i.to_s.rjust(2,'0')}=#{n.to_s}")
+                 i+=1
+              end
+              #null out remaining nodes
+              (i..20).each do |j|;eval("chpth.node#{j.to_s.rjust(2,'0')}=nil");end
+              chpth.save!
+        end
+        opth.delete
+        opth.save!
       end
-      return args[:node_list]
-    end
+
+    #args include target and parent path
+    args = [self.id] + path
+    #find or create new paths
+    method_string = "ThingPath.find_or_create_by_target"
+
+    #add nodes to method string
+    i=1
+    args.length.times {method_string += "_and_node" + i.to_s.rjust(2,'0').to_s;i+=1}
+    #add arguments to method string
+    method_string += "(#{args.join(',')})"
+    #evaluate method string
+    eval(method_string)
+
   end
 
   def self.import(args)
@@ -317,12 +266,16 @@ class Thing < ActiveRecord::Base
           id.th.dt(k.to_sym) if self.parent_id && self.parent_id != v
           self.parent_id = v
           self.save!
+          #create paths for this new relationship
+          self.create_path
         elsif keys[:parent].include?(k)
           # do the opposite for parent version
           self.dt(k.to_sym) if v.th.parent_id && v.th.parent_id != self.id
           @th_oth = v.th
           @th_oth.parent_id = self.id
           @th_oth.save!
+          #create paths for this new relationship
+          @th_oth.create_path
         elsif k=="name" 
           self.dt(k.to_sym) if self.name && self.name != v
           self.name = v
