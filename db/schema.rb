@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091018202502) do
+ActiveRecord::Schema.define(:version => 20091016163348) do
 
   create_table "old_tags", :force => true do |t|
     t.integer  "thing_id",                                                 :null => false
