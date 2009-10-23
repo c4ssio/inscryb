@@ -86,6 +86,9 @@ class ThingsController < ApplicationController
       @thing = @_params[:id].to_i.th
       session[:context] = (@_params[:context] || session[:context] || 'members')
       session[:mode] = (@_params[:mode] || session[:mode] || 'show')
+      session[:search] = @_params[:thing][:search] if @_params[:thing]
+      #to populate search box
+      @thing[:search]=session[:search]
     else
       #user is coming to this from root
       @thing = (@_params[:id].to_i != 0 ? @_params[:id].to_i.th : 5.th)
@@ -133,16 +136,18 @@ class ThingsController < ApplicationController
       # thing count displayed in the front end
 
       if session[:search]
-        @all_matches = Thing.search(session[:search])
-        @member_matches = @thing.child_paths.select{|chpth| @all_matches.include?(chpth.target)}
-        depth_str = @thing.parent_path.length.rjust(2,'0')
+        @all_matches = Thing.search(session[:search]).collect{|th| th.id}
+        @member_matches = @thing.child_paths.select{|chpth|
+          @all_matches.include?(chpth.target)}
+        #length+2: +1 to get to actual thing's depth, +1 to get to member depth
+        member_depth_str = (@thing.parent_path.length+2).to_s.rjust(2,'0')
       end
-
+      
       @thing[:member].each do |m|
         if session[:search] then
-          m[:member]=@member_matches.select{|mm| 
-            eval('mm.node#{depth_str}==@thing.id')}.collect{|mm| {:id=>mm.target} }
-          
+          m[:match]=@member_matches.select{|mm|
+            eval("mm.node#{member_depth_str}==#{m[:id]}")}.collect{|mm| {:id=>mm.target} }
+          m[:is_match]=true if @member_matches.collect{|mm| mm.target}.include?(m[:id])
         else
           #collect children
           m[:member]=Thing.find_all_by_parent_id(m[:id]) do |th|
@@ -150,11 +155,12 @@ class ThingsController < ApplicationController
           end
         end
       end
-    
+
+      
       #sort by number of members desc, so that the most matches/members
       #get sorted to the top
       @thing[:member]=@thing[:member].sort_by do |m|
-          m[:member].length
+          (m[:member] ? m[:member].length : m[:match].length)
       end.reverse
 
     elsif session[:context]=='tag_list'
