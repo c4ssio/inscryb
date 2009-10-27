@@ -9,7 +9,15 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091016163348) do
+ActiveRecord::Schema.define(:version => 20091024223813) do
+
+  create_table "clipboard_members", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "thing_id"
+    t.integer  "operation_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "old_tags", :force => true do |t|
     t.integer  "thing_id",                                                 :null => false
@@ -18,6 +26,12 @@ ActiveRecord::Schema.define(:version => 20091016163348) do
     t.string   "blurb"
     t.decimal  "number",                   :precision => 18, :scale => 15
     t.date     "date"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "operations", :force => true do |t|
+    t.string   "name",       :limit => 30
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -85,9 +99,15 @@ ActiveRecord::Schema.define(:version => 20091016163348) do
   end
 
   create_table "things", :force => true do |t|
-    t.string   "name",          :limit => 30
-    t.integer  "thing_type_id"
+    t.string   "name",       :limit => 30
     t.integer  "parent_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "users", :force => true do |t|
+    t.string   "name",          :limit => 30
+    t.string   "password_hash"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
