@@ -3,9 +3,5 @@
   <div class="new_member_name"><span>Name</span>
     <%=f.text_field(:member_name, :size=>20)%>
   </div>
-  <div class="new_member_thing_type"><span>Type</span>
-    <%=select('thing','member_thing_type_id', ThingType.all.collect{|thtyp| [thtyp.value,thtyp.id]})%>
-  </div>
-
     <%=submit_tag('Add Member')%>
 <%end -%>

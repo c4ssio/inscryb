@@ -1,7 +1,4 @@
 <span class="members">Members</span>
-<span class="tags">
-  <%=link_to("Tags",thing_url(:id=>@thing[:id],:context=>'tag_list'))%>
-</span>
 <%if session[:mode]=='edit'%>
 <%= render :partial=>'add_thing' %>
 <%end%>
@@ -15,7 +12,11 @@
           <tr class="member">
             <td class="member">
               <div class="member">
-                <%if @thing[:mode]=='edit'%><span>Del</span><span>Cut</span><span>Cpy</span><%end%>
+                <%if session[:mode]=='edit'%>
+          <%=link_to('Del',delete_tag_url(:thing_id=>@thing[:id],:key=>'has',:value=>m[:id]))%>
+          <%=link_to('Cut',cut_tag_url(:thing_id=>@thing[:id],:key=>'has',:value=>m[:id]))%>
+          <%=link_to('Cpy',copy_tag_url(:thing_id=>@thing[:id],:key=>'has',:value=>m[:id]))%>
+    <%end%>
                  <%=link_to(m[:name],thing_url(:id=>m[:id])) %>
                 <span>
                   <%if (m[:member] && m[:member].length>0)%>

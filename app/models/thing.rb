@@ -2,7 +2,6 @@ class Thing < ActiveRecord::Base
   
   has_many :src_relationships, :class_name=>'Relationship',:foreign_key=>'src_thing_id'
   has_many :dest_relationships, :class_name=>'Relationship',:foreign_key=>'dest_thing_id'
-  belongs_to :thing_type
   has_many :tags
   has_many :old_tags
   belongs_to :parent, :class_name=>'Thing',:foreign_key=>'parent_id'
@@ -26,11 +25,12 @@ class Thing < ActiveRecord::Base
     return path
   end
 
-  def child_paths
+  def paths
     #get depth of self as parent
-    depth=self.id.pth.nodes.length + 1
+    self_pth = self.id.pth
+    depth=self_pth.nodes.length + 1
     return [] if depth == 0
-    return eval("ThingPath.find_all_by_node#{depth.to_s.rjust(2,'0')}(#{self.id.to_s})")
+    return [self_pth] + eval("ThingPath.find_all_by_node#{depth.to_s.rjust(2,'0')}(#{self.id.to_s})")
   end
 
   def create_path
@@ -44,15 +44,15 @@ class Thing < ActiveRecord::Base
         #with a different path and updates them
         depth_str=(old_nodes.length+1).to_s.rjust(2,'0')
         parent_depth_str=old_nodes.length.to_s.rjust(2,'0')
-        self.child_paths.select{|chpth|
-          eval('chpth.node' + depth_str)==self.id &&
-            eval('chpth.node' + parent_depth_str)!=self.parent_id}.each do |chpth|
-              ch_nodes=chpth.nodes
-              #new path consists of new self path path + whatever path the child had after self
-              ch_path=path + ch_nodes[ch_nodes.index(self.id)..ch_nodes.length]
+        self.paths.select{|pth|
+          eval('pth.node' + depth_str)==self.id &&
+            eval('pth.node' + parent_depth_str)!=self.parent_id}.each do |pth|
+              nodes=pth.nodes
+              #new path consists of new self path + whatever path the child had after self
+              new_path=path[0..-2] + nodes[nodes.index(self.id)..nodes.length]
               i=1
-              ch_path.each do |n|                
-                 eval("chpth.node#{i.to_s.rjust(2,'0')}=#{n.to_s}")
+              new_path.each do |n|
+                 eval("pth.node#{i.to_s.rjust(2,'0')}=#{n.to_s}")
                  i+=1
               end
               #null out remaining nodes
@@ -192,9 +192,8 @@ class Thing < ActiveRecord::Base
   def tag_list
     #used to return a simple list of tags for display in things_controller
 
-    #attach name and thing_type
-    @tag_list = [{:key=>'name',:value=>self.name},
-      {:key=>'thing_type',:value=>(self.thing_type.nil? ? self.thing_type : self.thing_type.value)}]
+    #attach name
+    @tag_list = [{:key=>'name',:value=>self.name}]
 
     self.tags.each do |tg|
 
@@ -204,44 +203,7 @@ class Thing < ActiveRecord::Base
 
     return @tag_list
   end
-
-  def self.find_by_tags(args)
-    #accepts hashes, with optional __ wildcards
-    # finds only things that match all
-    args = Array(args)
-
-    keys[:child] = TermGroup.fbn('thing_key_child').members
-    keys[:parent] = TermGroup.fbn('thing_key_parent').members
-
-    args.each do |a|
-      if a.class==Hash
-        a.each { |k,v|
-          va=Array(v)
-          va.each do |v|
-            if keys[:child].include?(k)
-              
-            elsif keys[:parent].include?(k)
-              sql_join += "join things th#{i} on th#{i}.parent_id = th1.id "
-              sql_join += "and th#{i}=#{v}" if v.tag_value_type=="number"
-              i += 1
-            elsif k=="name"
-              
-            elsif k=="thing_type"
-              
-            end
-          end
-        }
-      elsif a.class==Symbol
-
-      else
-
-      end
-
-    end
-    
-
-  end
-  
+ 
   def add_tags(args)
     #args is a hash, with values that may be either single values or arrays of values
     keys = Hash.new
@@ -280,15 +242,11 @@ class Thing < ActiveRecord::Base
           self.dt(k.to_sym) if self.name && self.name != v
           self.name = v
           self.save!
-        elsif k=="thing_type" 
-          self.dt(k.to_sym) if self.thing_type && self.thing_type!=v
-          self.thing_type_id = ThingType.find_or_create_by_value(v).id
-          self.save!
         else
-          #if key is neither parent, child, name, or thing_type, include it in the tags table
+          #if key is neither parent, child, or name include it in the tags table
 
-          #if key is address and thing_type is place, get geocoding info
-          if k=="address" && self.thing_type && self.thing_type.value=='place'
+          #if key is address get geocoding info
+          if k=="address"
   
             #replacing '&' with 'and' for geocoding purposes
             geo_rml=Geocoding.get( v.gsub('&',' and ') )
@@ -336,8 +294,6 @@ class Thing < ActiveRecord::Base
         args = {ksym => Thing.find(:all,:conditions=>"parent_id=#{self.id}").collect{ |th| th.id } }
       elsif k=="name"
         args = {ksym => self.name}
-      elsif k=="thing_type"
-        args = {ksym => self.thing_type.value}
       else
         args = {ksym => Tag.find(:all,:conditions=>"thing_id=#{self.id} and tags.key='#{k}'").collect{ |tg| tg.value } }
       end
@@ -361,6 +317,13 @@ class Thing < ActiveRecord::Base
               self.id,"parent_id",self.parent_id,self.created_at)
             self.parent_id = nil
             self.save!
+            #nil out nodes on all paths down to and
+            #including parent
+            depth = self.parent_path.length
+            self.child_paths.each{|chpth|
+              for n in (1..depth)
+                eval("chpth.node#{n.rjust(2,'0')}=nil")
+              end}
           end
         elsif keys[:parent].include?(k) 
           if v.th.parent_id == self.id
@@ -375,13 +338,6 @@ class Thing < ActiveRecord::Base
             OldTag.find_or_create_by_thing_id_and_key_and_term_and_created_at(
               self.id,"name",self.name,self.created_at)
             self.name = nil
-            self.save!
-          end
-        elsif k=="thing_type"
-          if self.thing_type.value==v
-            OldTag.find_or_create_by_thing_id_and_key_and_number_and_created_at(
-              self.id,"thing_type_id",self.thing_type_id,self.created_at)
-            self.thing_type_id = nil
             self.save!
           end
         else

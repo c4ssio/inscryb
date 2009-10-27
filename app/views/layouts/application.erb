@@ -20,25 +20,22 @@
       </div>
       <!-- path layer -->
       <div class="path">
-        <% @thing[:path].each do |thp|%>
-          <%if thp==@thing[:path].last%>
-            <div class="target"><%=h thp[:name]-%></div>
-            <%if session[:mode]=='edit'%>
-            <%=link_to('Del',thing_url(:id=>@thing[:id]),:method=>'delete')-%>
-          <%=link_to('Cut',cut_thing_url(:id=>@thing[:id]))-%>
-          <%=link_to('Cpy',copy_thing_url(:id=>@thing[:id]))-%>
-            <%end%>
-          <% else %>
-            <%=link_to(thp[:name],thing_url(:id=>thp[:id]))-%>
-            <span>&gt;</span>
-          <% end %>
-        <%end%>
+<%
+#make a drop-down for the path
+path_nodes=@thing[:path][0..-2].collect{|thp| [thp[:name],thp[:id]]}.reverse
+%>
+<%form_tag(thing_url(@thing[:id]),{:method=>'get'}) do%>
+<%=select('thing','id', path_nodes,{},{:onchange=>"$(this).up('form').submit()"} )
+#clicking on form items or clicking Go submits and loads item
+%>
+<%=submit_tag("Go")%>
+<%end-%>
+<div class="target"><%=h @thing[:path].last[:name] -%></div>
       </div>
       <!--main view-->
       <%=yield %>
-      <div class="context">
-        <%=render :partial=>session[:context]-%>
-      </div>
+      <%=render :partial=>'members'-%>
+      <%=render :partial=>'tag_list'-%>
     </div>
   </body>
 </html>

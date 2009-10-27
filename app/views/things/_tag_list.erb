@@ -1,6 +1,3 @@
-<span class="members">
-  <%=link_to("Members",thing_url(:id=>@thing[:id],:context=>'members'))%>
-</span>
 <span class="tags">Tags</span>
 <%if session[:mode]=='edit'%>
 <%=render :partial=>'add_tag'%>

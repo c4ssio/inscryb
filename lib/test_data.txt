@@ -1,4 +1,4 @@
-thing_id	thing_type	name	type	type	address	part of	located in	of	in	on	under	at	color	color	age	brand	condition	length	height	width	price	weight
+thing_id	type	name	type	type	address	part of	located in	of	in	on	under	at	color	color	age	brand	condition	length	height	width	price	weight
 	place	World	planet																			
 	place	North America	region		North America				ROW1													
 	place	United States	country		United States				ROW2													
@@ -35,7 +35,7 @@ thing_id	thing_type	name	type	type	address	part of	located in	of	in	on	under	at	
 	place	trinity towers	building		"888 Ofarrell St, sf"					ROW11												
 	place	lobby	room						ROW34													
 	place	amc van ness	movie theater		"1000 van ness, sf"					ROW15												
-	place	quetzal internet café	coffee shop		"234 Polk St, sf"					ROW14												
+	place	quetzal internet cafï¿½	coffee shop		"234 Polk St, sf"					ROW14												
 	place	crunch fitness	gym		"1000 Van Ness, sf"					ROW15												
 	place	polk valley cleaners	dry cleaning & laundry							ROW12												
 	place	corner store	convenience store	corner store						ROW13												
