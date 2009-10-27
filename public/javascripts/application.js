@@ -9,7 +9,3 @@ function submit_thing_link(id,context,mode,method) {
   //submit form
   $("thing_form").submit();
 }
-
-function toggle_control(control,display_state) {
-    $(control).style.display=display_state;
-}
