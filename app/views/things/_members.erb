@@ -6,7 +6,7 @@
   <div class="member">
     <table class="member">
       <% @thing.members.each do |m|%>
-        <% if m.members || (m.matches && (m.matches.length>0 || m.is_match))
+        <% if (!session[:search] && m.members) || (session[:search] && (m.matches.length>0 || m.is_match))
           #for searches, only include member matches or members with matches
         %>
           <tr class="member">
@@ -16,14 +16,14 @@
           <%=link_to('Del',delete_tag_url(:id=>@thing.id,:thing_id=>m.id))%>
           <%=link_to('Cut',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cut'))%>
           <%=link_to('Cpy',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cpy'))%>
-    <%end%>
+                <%end%>
                  <%=link_to(m.name,thing_url(:id=>m.id)) %>
                 <span>
-                  <%if (m.members.length>0)%>
+                  <%if (!session[:search] && m.members.length>0)%>
                     <%="(" + m.members.length.to_s +
                       " thing" + ("s" if m.members.length>1).to_s +
                       " )"%>
-                  <%elsif m.matches && m.matches.length>0%>
+                  <%elsif session[:search] && m.matches.length>0%>
                     <%="(" + m.matches.length.to_s +
                       " match" + ("es" if m.matches.length>1).to_s +
                       " )"%>
