@@ -97,7 +97,8 @@ class Thing < ActiveRecord::Base
 
     #go through map and reassign parents for all but main
     @thing_map.select{|r| r[:dest_id]!=dself.id }.each do |r|
-
+      dth = r[:dest_id].th
+      dth.parent_id = @thing_map.select{|rd| r[:src_id].th.parent_id==rd[:src_id]}[0][:dest_id]
     end
 
     #generate paths for each
@@ -109,7 +110,7 @@ class Thing < ActiveRecord::Base
           dp.set_node(n,nil)
         end
         (depth..20).each do |n|
-          new_node = @thing_map[dp.node(n)]
+          new_node = @thing_map.select{|r| r[:src_id]==dp.node(n)}[0]
           dp.set_node(n, new_node[:dest_id])
         end
       end
@@ -117,9 +118,6 @@ class Thing < ActiveRecord::Base
     end
 
     #take top member corresponding to self on thing_map and add it to destination
-
-    dself = @thing_map.select{|r| r[:src]==self.id}[0][:dest]
-
     dself.th.at(:in=>args[:dest])
 
   end
