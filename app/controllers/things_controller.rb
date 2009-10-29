@@ -147,7 +147,7 @@ class ThingsController < ApplicationController
       @member_matches = @thing.paths.select{|chpth|
         @all_matches.include?(chpth.target)}
       #length+2: +1 to get to actual thing's depth, +1 to get to member depth
-      member_depth_str = (@thing.path.length+2).to_s.rjust(2,'0')
+      member_depth_str = (@thing.parent_nodes.length+2).to_s.rjust(2,'0')
       @thing.members.each do |m|
         m.matches=@member_matches.select{|mm|
           eval("mm.node#{member_depth_str}==#{m.id}")}.collect{|mm| {:id=>mm.target} }
