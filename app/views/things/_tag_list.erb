@@ -4,19 +4,17 @@
 <%end%>
 <div class="tag_list">
   <table class="tag_list">
-    <%@thing[:tag_list].each do |tg|%>
+    <%@thing.tags.each do |tg|%>
       <tr class="tag_list">
         <%if session[:mode]=='edit'%>
-        <td><%=link_to('Del',delete_tag_url(:thing_id=>@thing[:id],:key=>tg[:key],:value=>tg[:value]))%>
-          <%=link_to('Cut',cut_tag_url(:thing_id=>@thing[:id],:key=>tg[:key],:value=>tg[:value]))%>
-          <%=link_to('Cpy',copy_tag_url(:thing_id=>@thing[:id],:key=>tg[:key],:value=>tg[:value]))%>
+        <td><%=link_to('Del',delete_tag_url(:thing_id=>@thing.id,:tag_id=>tg.id))%>
         </td>
         <%end%>
         <td class="tag_list_key">
-          <%=tg[:key]%>
+          <%=tg.key%>
         </td>
         <td class="tag_list_value">
-            <span><%=tg[:value]%></span>
+            <span><%=tg.value%></span>
         </td>
       </tr>
     <%end%>

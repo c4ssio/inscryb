@@ -9,33 +9,36 @@
     <div class="dialog" id="dialog">
       <!-- controls layer -->
       <div class="controls">
-        <span class="actions"><%= link_to_remote "Actions", :update=>'actions', :url=>thing_url(:id=>@thing[:id])%></span>
+        <span class="actions"><%= link_to_remote "Actions", :update=>'actions', :url=>thing_url(:id=>@thing.id)%></span>
         <span class="edit">
           <%if session[:mode]=='show'%>
-            <%=link_to("Edit",edit_thing_url(:id=>@thing[:id]))-%>
+            <%=link_to("Edit",edit_thing_url(:id=>@thing.id))-%>
           <%elsif session[:mode]=='edit'%>
-            <%=link_to("Done",thing_url(:id=>@thing[:id],:mode=>'show'))-%>
+            <%=link_to("Done",thing_url(:id=>@thing.id,:mode=>'show'))-%>
           <%end%>
         </span>
       </div>
       <!-- path layer -->
       <div class="path">
-<%
-#make a drop-down for the path
-path_nodes=@thing[:path][0..-2].collect{|thp| [thp[:name],thp[:id]]}.reverse
-%>
-<%form_tag(thing_url(@thing[:id]),{:method=>'get'}) do%>
-<%=select('thing','id', path_nodes,{},{:onchange=>"$(this).up('form').submit()"} )
-#clicking on form items or clicking Go submits and loads item
-%>
-<%=submit_tag("Go")%>
-<%end-%>
-<div class="target"><%=h @thing[:path].last[:name] -%></div>
+        <%
+        #make a drop-down for the path
+        parent_nodes=@thing.parent_nodes.collect{|n| [n.th.name,n]}.reverse
+      %>
+        <%form_tag(thing_url(@thing.parent_id || @thing.id),{:method=>'get'}) do%>
+          <%=select('thing','id', parent_nodes,{},{:onchange=>"$(this).up('form').submit()"} ) if parent_nodes.last
+          #clicking on form items or clicking Go submits and loads item
+          %>
+          <%=submit_tag("Go") if parent_nodes.last%>
+        <%end-%>
+        <div class="target"><%=h @thing.name -%></div>
       </div>
       <!--main view-->
       <%=yield %>
       <%=render :partial=>'members'-%>
       <%=render :partial=>'tag_list'-%>
+      <%if session[:mode]=='edit'%>
+        <%=render :partial=>'clip_members'-%>
+      <%end%>
     </div>
   </body>
 </html>

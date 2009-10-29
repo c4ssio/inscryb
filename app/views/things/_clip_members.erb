@@ -1,0 +1,30 @@
+<span class="clip_members">Clips</span>
+<!--clip_members layer-->
+<div class="clip_members">
+  <table class="clip_members">
+    <%@clip_members.each do |cm|%>
+      <tr class="clip_members">
+        <td class="clip_members">
+          <div class="clip_members">
+            <%=link_to('Paste',clip_tag_url(:clip_id=>cm.id, :op=>'paste'))%>
+            <%=link_to(cm.thing.name,thing_url(:id=>cm.thing_id))%>
+            <%=link_to('Cancel',clip_tag_url(:clip_id=>cm.id, :op=>'cancel'))%>
+            <%=cm.operation.name%>
+          </div>
+        </td>
+      </tr>
+      <%cm.thing.tags.each do |tg|%>
+      <tr class="clip_members">
+          <td class="clip_members">
+          <div class="clip_members">
+            <span>&nbsp;&nbsp;</span>
+            <%=link_to('Paste',clip_tag_url(:clip_id=>cm.id, :op=>'paste', :tag_id => tg.id))%>
+            <%="#{tg.key} => #{tg.value}"%>
+          </div>
+        </td>
+      </tr>
+      <%end%>
+    <%end%>
+  </table>
+</div>
+

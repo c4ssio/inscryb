@@ -5,6 +5,7 @@ class Thing < ActiveRecord::Base
   has_many :tags
   has_many :old_tags
   belongs_to :parent, :class_name=>'Thing',:foreign_key=>'parent_id'
+  has_many :members, :class_name=>'Thing',:foreign_key=>'parent_id'
 
   #for sphinx search engine
   define_index do
@@ -15,7 +16,10 @@ class Thing < ActiveRecord::Base
     indexes tags.blurb
   end
 
-  def parent_path
+  attr_accessor :matches
+  attr_accessor :is_match
+  
+  def parent_nodes
     path=[]
     parent_id = self.parent_id
     while !parent_id.nil?
@@ -28,43 +32,39 @@ class Thing < ActiveRecord::Base
   def paths
     #get depth of self as parent
     self_pth = self.id.pth
-    depth=self_pth.nodes.length + 1
+    depth=(self_pth ? self_pth.nodes.length + 1 : 0)
     return [] if depth == 0
     return [self_pth] + eval("ThingPath.find_all_by_node#{depth.to_s.rjust(2,'0')}(#{self.id.to_s})")
   end
 
   def create_path
-    path = self.parent_path
-    #determine whether old paths exist for this thing; if so, they should be removed
-    old_paths=Array(self.id.pth).select{|thpth|
-      thpth.nodes.last != self.parent_id}
-    old_paths.each do |opth|
-        old_nodes = opth.nodes
-        #determine whether other paths exist under this thing
-        #with a different path and updates them
-        depth_str=(old_nodes.length+1).to_s.rjust(2,'0')
-        parent_depth_str=old_nodes.length.to_s.rjust(2,'0')
-        self.paths.select{|pth|
-          eval('pth.node' + depth_str)==self.id &&
-            eval('pth.node' + parent_depth_str)!=self.parent_id}.each do |pth|
-              nodes=pth.nodes
-              #new path consists of new self path + whatever path the child had after self
-              new_path=path[0..-2] + nodes[nodes.index(self.id)..nodes.length]
-              i=1
-              new_path.each do |n|
-                 eval("pth.node#{i.to_s.rjust(2,'0')}=#{n.to_s}")
-                 i+=1
-              end
-              #null out remaining nodes
-              (i..20).each do |j|;eval("chpth.node#{j.to_s.rjust(2,'0')}=nil");end
-              chpth.save!
-        end
-        opth.delete
-        opth.save!
+    parent_nodes = self.parent_nodes
+
+    #determine whether other paths exist under this thing
+    #with a different path and updates them
+    self.paths.each do |pth|
+      old_nodes = pth.nodes
+      if pth.target == self.id
+        child_nodes = []
+      else
+        child_nodes = old_nodes[old_nodes.index(self.id)..20]
       end
 
+      #new path consists of new self path + whatever path the child had after self
+      new_path=parent_nodes + child_nodes
+      i=1
+      new_path.each do |n|
+        pth.set_node(i,n)
+        i+=1
+      end
+      #null out remaining nodes
+      (i..20).each do |j|;pth.set_node(j,nil);end
+      pth.save!
+    end
+
+    #if self path already exists this part will do nothing
     #args include target and parent path
-    args = [self.id] + path
+    args = [self.id] + parent_nodes
     #find or create new paths
     method_string = "ThingPath.find_or_create_by_target"
 
@@ -76,6 +76,66 @@ class Thing < ActiveRecord::Base
     #evaluate method string
     eval(method_string)
 
+  end
+
+  def copy_to(args)
+    #args here is :dest, which specifies the thing id under which self should be copied
+    self_pth = self.id.pth
+    depth=(self_pth ? self_pth.nodes.length + 1 : 0)
+
+    dself = self.copy; dself.parent_id = nil; dself.save!
+    @thing_map = Array.new
+
+    #add all targets to map table
+    @src_paths.each do |sp|
+      sth = sp.target.th
+      #strip parent from copy
+      dth = sth.copy; dth.parent_id = nil; dth.save!
+      #add copy to map
+      @thing_map << {:src_id=>sth.id,:dest_id=>dth.id}
+    end
+
+    #go through map and reassign parents for all but main
+    @thing_map.select{|r| r[:dest_id]!=dself.id }.each do |r|
+
+    end
+
+    #generate paths for each
+    @src_paths.each do |sp|
+      dp = sp.clone
+      dp.target = sp.target
+      if depth>0
+        Array(1..(depth-1)).reverse.each do |n|
+          dp.set_node(n,nil)
+        end
+        (depth..20).each do |n|
+          new_node = @thing_map[dp.node(n)]
+          dp.set_node(n, new_node[:dest_id])
+        end
+      end
+      dp.save!
+    end
+
+    #take top member corresponding to self on thing_map and add it to destination
+
+    dself = @thing_map.select{|r| r[:src]==self.id}[0][:dest]
+
+    dself.th.at(:in=>args[:dest])
+
+  end
+
+  def copy
+
+    dth = self.clone
+    dth.save!
+
+    self.tags.each do |stg|
+      dtg = stg.clone
+      dtg.thing_id = dth.id
+      dtg.save!
+    end
+
+    return dth
   end
 
   def self.import(args)
@@ -187,21 +247,6 @@ class Thing < ActiveRecord::Base
     #end
     
     puts "No. of things created : #{thing_cnt}"
-  end
-
-  def tag_list
-    #used to return a simple list of tags for display in things_controller
-
-    #attach name
-    @tag_list = [{:key=>'name',:value=>self.name}]
-
-    self.tags.each do |tg|
-
-      @tag_list << {:key=>tg.key,:value=>tg.value}
-
-    end
-
-    return @tag_list
   end
  
   def add_tags(args)
@@ -318,12 +363,17 @@ class Thing < ActiveRecord::Base
             self.parent_id = nil
             self.save!
             #nil out nodes on all paths down to and
-            #including parent
-            depth = self.parent_path.length
-            self.child_paths.each{|chpth|
-              for n in (1..depth)
-                eval("chpth.node#{n.rjust(2,'0')}=nil")
-              end}
+            #including parent path
+            self.paths.each{|chpth|
+              n=1
+              while chpth.node(n)!=v
+                chpth.set_node(n,nil)
+                n+=1
+              end
+              #nil parent node
+              chpth.set_node(n,nil)
+              chpth.save!
+            }
           end
         elsif keys[:parent].include?(k) 
           if v.th.parent_id == self.id
@@ -332,6 +382,18 @@ class Thing < ActiveRecord::Base
               @th_oth.id,"parent_id",@th_oth.parent_id,self.created_at)
             @th_oth.parent_id = nil
             @th_oth.save!
+            #nil out nodes on all paths down to and
+            #including parent path
+            @th_oth.paths.each{|chpth|
+              n=1
+              while chpth.node(n)!=self.id
+                chpth.set_node(n,nil)
+                n+=1
+              end
+              #nil parent node
+              chpth.set_node(n,nil)
+              chpth.save!
+            }
           end
         elsif k=="name" 
           if self.name==v

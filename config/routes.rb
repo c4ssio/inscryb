@@ -35,13 +35,10 @@ ActionController::Routing::Routes.draw do |map|
 
   map.add_tag '/things/:id/add_tag/', :controller=>'things', :action=>'add_tag'
   map.delete_tag '/things/:id/delete_tag/', :controller=>'things', :action=>'delete_tag'
-  map.cut_tag '/things/:id/cut_tag/', :controller=>'things', :action=>'cut_tag'
-  map.copy_tag '/things/:id/copy_tag/', :controller=>'things', :action=>'copy_tag'
-
+  map.clip_tag '/things/:id/clip_tag/', :controller=>'things', :action=>'clip_tag'
   map.add_thing '/things/:id/add_thing/', :controller=>'things', :action=>'add_thing'
-  map.cut_thing '/things/:id/cut_thing/', :controller=>'things', :action=>'cut_thing'
-  map.copy_thing '/things/:id/copy_thing/', :controller=>'things', :action=>'copy_thing'
-  
+
+
   map.resources :things
 
 

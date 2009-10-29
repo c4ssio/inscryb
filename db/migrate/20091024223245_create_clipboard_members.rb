@@ -3,6 +3,7 @@ class CreateClipboardMembers < ActiveRecord::Migration
     create_table :clipboard_members do |t|
       t.integer :user_id
       t.integer :thing_id
+      t.integer :tag_id
       t.integer :operation_id
       t.timestamps
     end

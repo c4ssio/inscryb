@@ -9,19 +9,20 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091024223813) do
+ActiveRecord::Schema.define(:version => 20091025163348) do
 
   create_table "clipboard_members", :force => true do |t|
     t.integer  "user_id"
     t.integer  "thing_id"
+    t.integer  "tag_id"
     t.integer  "operation_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "old_tags", :force => true do |t|
-    t.integer  "thing_id",                                                 :null => false
-    t.string   "key",        :limit => 30,                                 :null => false
+    t.integer  "thing_id",                                                                 :null => false
+    t.string   "key",        :limit => 30,                                 :default => "", :null => false
     t.string   "term",       :limit => 30
     t.string   "blurb"
     t.decimal  "number",                   :precision => 18, :scale => 15
@@ -49,8 +50,8 @@ ActiveRecord::Schema.define(:version => 20091024223813) do
   end
 
   create_table "tags", :force => true do |t|
-    t.integer  "thing_id",                                                 :null => false
-    t.string   "key",        :limit => 30,                                 :null => false
+    t.integer  "thing_id",                                                                 :null => false
+    t.string   "key",        :limit => 30,                                 :default => "", :null => false
     t.string   "term",       :limit => 30
     t.string   "blurb"
     t.decimal  "number",                   :precision => 18, :scale => 15
@@ -60,12 +61,12 @@ ActiveRecord::Schema.define(:version => 20091024223813) do
   end
 
   create_table "term_group_members", :force => true do |t|
-    t.integer "term_group_id",               :null => false
-    t.string  "value",         :limit => 30, :null => false
+    t.integer "term_group_id",                               :null => false
+    t.string  "value",         :limit => 30, :default => "", :null => false
   end
 
   create_table "term_groups", :force => true do |t|
-    t.string "name", :null => false
+    t.string "name", :default => "", :null => false
   end
 
   create_table "thing_paths", :force => true do |t|
@@ -92,10 +93,6 @@ ActiveRecord::Schema.define(:version => 20091024223813) do
     t.integer  "node20"
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "thing_types", :force => true do |t|
-    t.string "value", :limit => 30, :null => false
   end
 
   create_table "things", :force => true do |t|

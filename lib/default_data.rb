@@ -63,10 +63,5 @@ module DefaultData
         "thing_key_owner_current","thing_key_owner_prior","thing_key_owner_next",
         "thing_key_distance_time","thing_key_distance_space",
         "thing_key_comp_subj","thing_key_comp_similar","thing_key_comp_dissimilar"])
-
-    ['item','place'].each do |v|
-      ThingType.find_or_create_by_value(v)
-    end
-
   end
 end

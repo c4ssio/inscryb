@@ -33,6 +33,9 @@
     def pth
       return ThingPath.find_by_target(self)
     end
+    def cm
+      return ClipboardMember.find(self)
+    end
   end
   class BigDecimal
     def tag_value_type
