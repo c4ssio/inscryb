@@ -1,7 +1,4 @@
 <span class="tags">Tags</span>
-<%if session[:mode]=='edit'%>
-<%=render :partial=>'add_tag'%>
-<%end%>
 <div class="tag_list">
   <table class="tag_list">
     <%@thing.tags.each do |tg|%>

@@ -266,21 +266,43 @@ class Thing < ActiveRecord::Base
 
       va.each do |v|
         if keys[:child].include?(k)
-          # if the key term is a member of thing_key_child and child is marked as having a different
-          # parent, delete that tag; then add self as new parent
-          id.th.dt(k.to_sym) if self.parent_id && self.parent_id != v
-          self.parent_id = v
-          self.save!
-          #create paths for this new relationship
-          self.create_path
+          #if use supplies a string rather than an integer
+          #create a new member beneath parent_id and put child under it
+          if v.to_i.to_s != v.to_s or v == '0'
+            new_parent = Thing.create
+            new_parent.at(:name=>v.to_s)
+            new_parent.at(:in=>self.parent_id)
+            self.at(:in=>new_parent.id)
+          else
+            #if user tries to add thing as child of child, fail:
+            raise "can't add parent as child" if v.th.parent_nodes.include?(self.id)
+            # if the key term is a member of thing_key_child and child is marked as having a different
+            # parent, delete that tag; then add self as new parent
+            id.th.dt(k.to_sym) if self.parent_id && self.parent_id != v
+            self.parent_id = v
+            self.save!
+            #create paths for this new relationship
+            self.create_path
+          end
         elsif keys[:parent].include?(k)
-          # do the opposite for parent version
-          self.dt(k.to_sym) if v.th.parent_id && v.th.parent_id != self.id
-          @th_oth = v.th
-          @th_oth.parent_id = self.id
-          @th_oth.save!
-          #create paths for this new relationship
-          @th_oth.create_path
+          #if use supplies a string rather than an integer
+          #create a new member beneath self
+          if v.to_i.to_s != v.to_s or v == '0'
+            new_child = Thing.create
+            puts v.to_s
+            new_child.at(:name=>v.to_s)
+            new_child.at(:in=>self.id)
+          else
+            # do the opposite for parent version
+            #if user tries to add thing as parent of parent, fail:
+            raise "can't add child as parent" if self.parent_nodes.include?(v)
+            self.dt(k.to_sym) if v.th.parent_id && v.th.parent_id != self.id
+            @th_oth = v.th
+            @th_oth.parent_id = self.id
+            @th_oth.save!
+            #create paths for this new relationship
+            @th_oth.create_path
+          end
         elsif k=="name" 
           self.dt(k.to_sym) if self.name && self.name != v
           self.name = v

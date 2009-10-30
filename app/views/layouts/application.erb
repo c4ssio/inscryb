@@ -34,6 +34,9 @@
       </div>
       <!--main view-->
       <%=yield %>
+      <%if session[:mode]=='edit'%>
+      <%=render :partial=>'add_tag'%>
+      <%end%>
       <%=render :partial=>'members'-%>
       <%=render :partial=>'tag_list'-%>
       <%if session[:mode]=='edit'%>

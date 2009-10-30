@@ -22,7 +22,8 @@ class ThingsController < ApplicationController
 
     #check to determine whether tag already exists
 
-    if @thing.tag_list.include?({:key=>@_params[:thing][:key], :value=>@_params[:thing][:value]}) then
+    if @thing.tags.collect{|tg| {:key=>tg.key,:value=>tg.value } }.include?(
+        {:key=>@_params[:thing][:key], :value=>@_params[:thing][:value]}) then
       flash[:notice] = "tag already exists"
     else
       @thing.at(@_params[:thing][:key].to_sym => @_params[:thing][:value])

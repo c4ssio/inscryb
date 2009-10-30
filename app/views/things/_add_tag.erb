@@ -1,5 +1,6 @@
 <%form_for(:thing, @thing, :url=>add_tag_url(:id=>@thing)) do |f|%>
-<span>Add Tag</span>
+<div>Add Tag / Member</div>
+<div>(use 'has' or 'in' for Members)</div>
   <div class="new_tag_key"><span>Key</span>
     <%=f.text_field(:key, :size=>20)%>
   </div>
