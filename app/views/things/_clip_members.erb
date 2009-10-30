@@ -13,17 +13,6 @@
           </div>
         </td>
       </tr>
-      <%cm.thing.tags.each do |tg|%>
-      <tr class="clip_members">
-          <td class="clip_members">
-          <div class="clip_members">
-            <span>&nbsp;&nbsp;</span>
-            <%=link_to('Paste',clip_tag_url(:clip_id=>cm.id, :op=>'paste', :tag_id => tg.id))%>
-            <%="#{tg.key} => #{tg.value}"%>
-          </div>
-        </td>
-      </tr>
-      <%end%>
     <%end%>
   </table>
 </div>

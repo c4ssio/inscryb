@@ -35,13 +35,16 @@
       <!--main view-->
       <%=yield %>
       <%if session[:mode]=='edit'%>
-      <%=render :partial=>'add_tag'%>
+        <%=render :partial=>'add_tag'%>
+        <%=render :partial=>'clip_members'-%>
       <%end%>
       <%=render :partial=>'members'-%>
       <%=render :partial=>'tag_list'-%>
-      <%if session[:mode]=='edit'%>
-        <%=render :partial=>'clip_members'-%>
-      <%end%>
     </div>
   </body>
+  <%if session[:mode]=='edit'%>
+  <%= set_focus_to_id 'thing_key' %>
+  <%elsif session[:mode]=='show'%>
+  <%= set_focus_to_id 'thing_search' %>
+  <%end%>
 </html>

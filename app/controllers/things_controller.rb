@@ -1,10 +1,28 @@
 class ThingsController < ApplicationController
 
   def index
+    #use 'members' context and 'show' mode by default
+    session[:context] = 'members'
+    session[:mode] = 'show'
     #5 represents the ID for San Francisco
     #1 represents the ID for the inscryb root user
     session[:user_id]=1
     redirect_to(:action=>'show', :id=>5)
+  end
+
+  def search
+
+    @all_matches = Thing.search(session[:search]).collect{|th| th.id}
+    @member_matches = @thing.paths.select{|chpth|
+      @all_matches.include?(chpth.target)}
+    #length+2: +1 to get to actual thing's depth, +1 to get to member depth
+    member_depth_str = (@thing.parent_nodes.length+2).to_s.rjust(2,'0')
+    @thing.members.each do |m|
+      m.matches=@member_matches.select{|mm|
+        eval("mm.node#{member_depth_str}==#{m.id}")}.collect{|mm| {:id=>mm.target} }
+      m.is_match=true if @member_matches.collect{|mm| mm.target}.include?(m.id)
+    end
+
   end
 
   def new
@@ -38,8 +56,8 @@ class ThingsController < ApplicationController
 
     if ['cut','cpy'].include?(@_params[:op])
       op_id = Operation.find_or_create_by_name(@_params[:op]).id
-        ClipboardMember.find_or_create_by_user_id_and_thing_id_and_operation_id(
-          session[:user_id],@_params[:thing_id].to_i,op_id)
+      ClipboardMember.find_or_create_by_user_id_and_thing_id_and_operation_id(
+        session[:user_id],@_params[:thing_id].to_i,op_id)
     end
 
     @_params[:clip_id].to_i.cm.delete if @_params[:op]=='cancel'
@@ -105,32 +123,22 @@ class ThingsController < ApplicationController
     #the @_params variable is supplied by the system when the user submits a request from the
     #front-end.  It includes variables submitted in forms, query strings in the URL, etc.
 
-    if @_params
+    session[:context] = (@_params[:context] || session[:context] || 'members')
+    session[:mode] = (@_params[:mode] || session[:mode] || 'show')
+    if @_params[:thing]
+      if @_params[:thing][:search] == ""
+        session[:search] = nil
+      else
+        session[:search] = @_params[:thing][:search]
+      end
+      #user has defined thing by submitting form (such as from drop-down)
+      @thing = (@_params[:thing][:id] || @_params[:id]).to_i.th
+    else
       #user is coming to this from front-end or URl
       @thing = (@_params[:id].to_i !=0 ? @_params[:id].to_i : 5).th
-      session[:context] = (@_params[:context] || session[:context] || 'members')
-      session[:mode] = (@_params[:mode] || session[:mode] || 'show')
-      if @_params[:thing]
-        if @_params[:thing][:search] == ""
-          session[:search] = nil
-        else
-          session[:search] = @_params[:thing][:search]
-        end
-        #user has defined thing by submitting form (such as from drop-down)
-        @thing = @_params[:thing][:id].to_i.th if @_params[:thing][:id]
-
-      end
-      #to populate search box
-      @thing[:search]=session[:search]
-    else
-      #user is coming to this from root
-      @thing = (@_params[:id].to_i != 0 ? @_params[:id].to_i.th : 5.th)
-      #keeps errors from happening when rendering page
-      session[:search] = nil
-      #use 'members' context and 'show' mode by default
-      session[:context] = 'members'
-      session[:mode] = 'show'
     end
+    #to populate search box
+    @thing[:search]=session[:search]
 
     #TODO:remove this hack
     @thing[:key]=nil
@@ -142,20 +150,8 @@ class ThingsController < ApplicationController
     #member_matches for the supplied thing, which are the members that contain the search term
     #if not, simply get every member and count the number of members beneath them to get the
     # thing count displayed in the front end
-
-    if session[:search]
-      @all_matches = Thing.search(session[:search]).collect{|th| th.id}
-      @member_matches = @thing.paths.select{|chpth|
-        @all_matches.include?(chpth.target)}
-      #length+2: +1 to get to actual thing's depth, +1 to get to member depth
-      member_depth_str = (@thing.parent_nodes.length+2).to_s.rjust(2,'0')
-      @thing.members.each do |m|
-        m.matches=@member_matches.select{|mm|
-          eval("mm.node#{member_depth_str}==#{m.id}")}.collect{|mm| {:id=>mm.target} }
-        m.is_match=true if @member_matches.collect{|mm| mm.target}.include?(m.id)
-      end
-    end
-      
+    search if session[:search]
+    
     #sort by number of members desc, so that the most matches/members
     #get sorted to the top
     @thing.members=@thing.members.sort_by do |m|
