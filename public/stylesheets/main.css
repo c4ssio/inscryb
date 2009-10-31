@@ -37,7 +37,7 @@ a:hover {
 .search,
 .member_action_list,
 .new_tag_key_value,
-.tag_list table {
+.tag_list_container {
 	width: 95%;
 	color: #444;
     border-bottom: 2px solid black;
