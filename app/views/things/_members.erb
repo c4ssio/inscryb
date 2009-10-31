@@ -25,9 +25,11 @@
                     " thing" + ("s" if m.members.length>1).to_s +
                     " )"%>
                 <%elsif session[:search] && m.matches.length>0%>
-                  <%="(" + m.matches.length.to_s +
-                    " match" + ("es" if m.matches.length>1).to_s +
-                    " )"%>
+                  <%="("%>
+                  <%m.matches.each do |mm|%>
+                  <%=link_to(mm.name,thing_url(:id=>mm.parent.id))%>
+                  <%end%>
+                  <%=" )"%>
                 <%end%>
               </span>
             </div>
