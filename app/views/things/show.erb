@@ -1,5 +1,4 @@
   <p style="color: green"><%=flash[:notice]%></p>
-  <%= image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
   <!-- path layer -->
   <div class="path">
     <%
@@ -18,6 +17,7 @@
   <%form_tag('javascript:void(0)') do%>
     <div class="search">
       <p><span>Search</span>
+      <%= image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
       <%=text_field(:thing,:search, :size=>20)-%></p>
     </div>
   <%end-%>
