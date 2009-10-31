@@ -19,7 +19,7 @@ class ThingsController < ApplicationController
     member_depth_str = (@thing.parent_nodes.length+2).to_s.rjust(2,'0')
     @thing.members.each do |m|
       m.matches=@member_matches.select{|mm|
-        eval("mm.node#{member_depth_str}==#{m.id}")}.collect{|mm| {:id=>mm.target} }
+        eval("mm.node#{member_depth_str}==#{m.id}")}.collect{|mm| mm.target.th }
       m.is_match=true if @member_matches.collect{|mm| mm.target}.include?(m.id)
     end
 
