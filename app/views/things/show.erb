@@ -5,21 +5,14 @@
     #make a drop-down for the path
     parent_nodes=@thing.parent_nodes.collect{|n| [n.th.name,n]}.reverse
   %>
-    <%form_tag(things_url,{:method=>'get'}) do%>
+  <div class="target_group">
+      <%=h @thing.name -%>
+  <%form_tag(things_url,{:method=>'get'}) do%>
       <%=select('thing','id', parent_nodes,{},{:onchange=>"$(this).up('form').submit()"} ) if parent_nodes.last
       #clicking on form items or clicking Go submits and loads item
       %>
       <%=submit_tag("Go") if parent_nodes.last%>
     <%end-%>
-    <div class="target"><%=h @thing.name -%></div>
-    <div class="target_group">
-      <%=h @thing.name -%>
-      <%form_tag(thing_url(@thing.parent_id || @thing.id),{:method=>'get'}) do%>
-        <%=select('thing','id', parent_nodes,{},{:onchange=>"$(this).up('form').submit()"} ) if parent_nodes.last
-        #clicking on form items or clicking Go submits and loads item
-        %>
-        <%=submit_tag("Go") if parent_nodes.last%>
-      <%end-%>
     </div>
   </div>
   <!--search layer-->
