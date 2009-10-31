@@ -38,9 +38,9 @@ ActionController::Routing::Routes.draw do |map|
   map.clip_tag '/things/:id/clip_tag/', :controller=>'things', :action=>'clip_tag'
   map.add_thing '/things/:id/add_thing/', :controller=>'things', :action=>'add_thing'
 
-
   map.resources :things
 
+  map.retrieve '/things/:id', :controller=>'things', :action=>'retrieve'
 
   # See how all your routes lay out with "rake routes"
 

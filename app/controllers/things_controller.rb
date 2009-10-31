@@ -3,7 +3,7 @@ class ThingsController < ApplicationController
   def index
     #use 'members' context and 'show' mode by default
     session[:context] = 'members'
-    session[:mode] = 'show'
+    #session[:mode] = 'show'
     #5 represents the ID for San Francisco
     #1 represents the ID for the inscryb root user
     session[:user_id]=1
@@ -114,16 +114,32 @@ class ThingsController < ApplicationController
 
   end
 
-  def show
-    
-    #the show action is designed to return data for a single model, in this case a single Thing.
+  def retrieve
+
+    identify
+
+    #here we determine whether the user is searching or browsing, which is based on whether
+    #a search argument was supplied in @_params above.  If they are searching, we get the
+    #member_matches for the supplied thing, which are the members that contain the search term
+    #if not, simply get every member and count the number of members beneath them to get the
+    # thing count displayed in the front end
+    search if session[:search]
+
+    #sort by number of members desc, so that the most matches/members
+    #get sorted to the top
+    @thing.members=@thing.members.sort_by do |m|
+      (session[:search] ? m.matches.length : m.members.length)
+    end.reverse
+  end
+
+  def identify
+    #this action is designed to return data for a single model, in this case a single Thing.
     #For this, it needs the ID for the Thing in question.
     #the @_params variable: (the @ in front of it indicates it's an instance variable rather
     #than a local variable, which preserves it in memory for display after the method ends)
     #the @_params variable is supplied by the system when the user submits a request from the
     #front-end.  It includes variables submitted in forms, query strings in the URL, etc.
 
-    session[:context] = (@_params[:context] || session[:context] || 'members')
     session[:mode] = (@_params[:mode] || session[:mode] || 'show')
     if @_params[:thing]
       if @_params[:thing][:search] == ""
@@ -144,22 +160,17 @@ class ThingsController < ApplicationController
     @thing[:key]=nil
     @thing[:value]=nil
     @thing[:member_name]=nil
+
+  end
+
+  def show
     
-    #here we determine whether the user is searching or browsing, which is based on whether
-    #a search argument was supplied in @_params above.  If they are searching, we get the
-    #member_matches for the supplied thing, which are the members that contain the search term
-    #if not, simply get every member and count the number of members beneath them to get the
-    # thing count displayed in the front end
-    search if session[:search]
-    
-    #sort by number of members desc, so that the most matches/members
-    #get sorted to the top
-    @thing.members=@thing.members.sort_by do |m|
-      (session[:search] ? m.matches.length : m.members.length)
-    end.reverse
+    retrieve
 
     @clip_members = ClipboardMember.find_all_by_user_id(session[:user_id])
-    
+
+    #set ignore variable if request from ajax
+    request.xhr? ? @ignore_input = true : @ignore_input = false
   end
 
 end

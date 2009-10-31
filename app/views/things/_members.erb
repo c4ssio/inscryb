@@ -1,36 +1,36 @@
-<span class="members">Members</span>
 <!--member layer-->
-  <div class="member">
-    <table class="member">
-      <% @thing.members.each do |m|%>
-        <% if (!session[:search] && m.members) || (session[:search] && (m.matches.length>0 || m.is_match))
-          #for searches, only include member matches or members with matches
+<div class="member" id="member_wrapper">
+  <span class="members">Members</span>
+  <table class="member">
+    <% @thing.members.each do |m|%>
+      <% if (!session[:search] && m.members) || (session[:search] && (m.matches.length>0 || m.is_match))
+        #for searches, only include member matches or members with matches
         %>
-          <tr class="member">
-            <td class="member">
-              <div class="member">
-                <%if session[:mode]=='edit'%>
-          <%=link_to('Del',delete_tag_url(:id=>@thing.id,:thing_id=>m.id))%>
-          <%=link_to('Cut',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cut'))%>
-          <%=link_to('Cpy',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cpy'))%>
+        <tr class="member">
+          <td class="member">
+            <div class="member">
+              <%if session[:mode]=='edit'%>
+                <%=link_to('Del',delete_tag_url(:id=>@thing.id,:thing_id=>m.id))%>
+                <%=link_to('Cut',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cut'))%>
+                <%=link_to('Cpy',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cpy'))%>
+              <%end%>
+              <%=link_to(m.name,thing_url(:id=>m.id)) %>
+              <span>
+                <%if (!session[:search] && m.members.length>0)%>
+                  <%="(" + m.members.length.to_s +
+                    " thing" + ("s" if m.members.length>1).to_s +
+                    " )"%>
+                <%elsif session[:search] && m.matches.length>0%>
+                  <%="(" + m.matches.length.to_s +
+                    " match" + ("es" if m.matches.length>1).to_s +
+                    " )"%>
                 <%end%>
-                 <%=link_to(m.name,thing_url(:id=>m.id)) %>
-                <span>
-                  <%if (!session[:search] && m.members.length>0)%>
-                    <%="(" + m.members.length.to_s +
-                      " thing" + ("s" if m.members.length>1).to_s +
-                      " )"%>
-                  <%elsif session[:search] && m.matches.length>0%>
-                    <%="(" + m.matches.length.to_s +
-                      " match" + ("es" if m.matches.length>1).to_s +
-                      " )"%>
-                  <%end%>
-                </span>
-              </div>
-            </td>
-          </tr>
-        <%end%>
+              </span>
+            </div>
+          </td>
+        </tr>
       <%end%>
-    </table>
-  </div>
+    <%end%>
+  </table>
+</div>
 
