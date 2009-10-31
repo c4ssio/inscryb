@@ -3,7 +3,7 @@ root {
 }
 
 body {
-	font: 80% times, serif;
+	font: 8pt times, serif;
 }
 
 input, select {
@@ -14,7 +14,7 @@ input, select {
 	margin: 0px;
 }
 
-.target {
+.target_group {
 	font-weight: bold;
 	font-size: 150%;
 }
@@ -32,7 +32,7 @@ a:hover {
 .member table,
 .new_tag_key_value,
 .tag_list table {
-	width: 90%;
+	width: 95%;
 	color: #444;
     border: 2px solid black;
 	-moz-border-radius: 4px;

@@ -14,9 +14,9 @@
           <td class="member">
             <div class="member">
               <%if session[:mode]=='edit'%>
-                <%=link_to('Del',delete_tag_url(:id=>@thing.id,:thing_id=>m.id))%>
-                <%=link_to('Cut',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cut'))%>
-                <%=link_to('Cpy',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cpy'))%>
+                <%=link_to('D',delete_tag_url(:id=>@thing.id,:thing_id=>m.id))%>
+                <%=link_to('X',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cut'))%>
+                <%=link_to('C',clip_tag_url(:id=>@thing.id,:thing_id=>m.id, :op=>'cpy'))%>
               <%end%>
               <%=link_to(m.name,thing_url(:id=>m.id)) %>
               <span>
