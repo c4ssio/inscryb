@@ -51,5 +51,10 @@
     :before=> "Element.show('spinner')",
     :complete => "Element.hide('spinner')",
     :url => {:action=>'retrieve'},
-    :with => "'thing[search]=' + encodeURIComponent(value)"
-  %>
+    :with => "'thing[search]=' + encodeURIComponent(value)"%>
+  <%if session[:mode]=='edit'%>
+  <%=set_focus_to_id('thing_key')%>
+  <%elsif session[:mode]=='show'%>
+  <%=set_focus_to_id('thing_search')%>
+  <%end%>
+
