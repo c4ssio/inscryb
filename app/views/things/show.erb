@@ -12,13 +12,22 @@
       <%=submit_tag("Go") if parent_nodes.last%>
     <%end-%>
     <div class="target"><%=h @thing.name -%></div>
+    <div class="target_group">
+      <%=h @thing.name -%>
+      <%form_tag(thing_url(@thing.parent_id || @thing.id),{:method=>'get'}) do%>
+        <%=select('thing','id', parent_nodes,{},{:onchange=>"$(this).up('form').submit()"} ) if parent_nodes.last
+        #clicking on form items or clicking Go submits and loads item
+        %>
+        <%=submit_tag("Go") if parent_nodes.last%>
+      <%end-%>
+    </div>
   </div>
   <!--search layer-->
   <%form_tag('javascript:void(0)') do%>
     <div class="search">
       <p><span>Search</span>
       <%= image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
-      <%=text_field(:thing,:search, :size=>20)-%></p>
+      <%=text_field(:thing,:search, :size=>10)-%></p>
     </div>
   <%end-%>
   <%=render :partial=>'members'-%>
