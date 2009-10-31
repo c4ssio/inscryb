@@ -258,10 +258,10 @@ class Thing < ActiveRecord::Base
     args.each do |ksym,v|
 
       #store key and value for these tags;
-      #convert key to string for use in database searches
+      #convert key to downcased string for use in database searches
       #convert value to array to allow all values to be treated as arrays,
       #since array is a permitted input. single inputs will be treated as 1-member arrays
-      k = ksym.to_s
+      k = ksym.to_s.downcase
       va = Array(v)
 
       va.each do |v|

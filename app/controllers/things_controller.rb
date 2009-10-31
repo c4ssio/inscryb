@@ -130,6 +130,8 @@ class ThingsController < ApplicationController
     @thing.members=@thing.members.sort_by do |m|
       (session[:search] ? m.matches.length : m.members.length)
     end.reverse
+
+    @clip_members = ClipboardMember.find_all_by_user_id(session[:user_id])
   end
 
   def identify
@@ -140,7 +142,6 @@ class ThingsController < ApplicationController
     #the @_params variable is supplied by the system when the user submits a request from the
     #front-end.  It includes variables submitted in forms, query strings in the URL, etc.
 
-    session[:mode] = (@_params[:mode] || session[:mode] || 'show')
     if @_params[:thing]
       if @_params[:thing][:search]
       session[:search] = @_params[:thing][:search]
@@ -160,16 +161,15 @@ class ThingsController < ApplicationController
     @thing[:value]=nil
     @thing[:member_name]=nil
 
+    session[:mode] = (session[:search] ? 'show' : 'edit')
+
+
   end
 
   def show
     
     retrieve
-
-    @clip_members = ClipboardMember.find_all_by_user_id(session[:user_id])
-
-    #set ignore variable if request from ajax
-    request.xhr? ? @ignore_input = true : @ignore_input = false
+    
   end
 
 end

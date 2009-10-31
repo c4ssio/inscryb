@@ -1,18 +1,5 @@
   <p style="color: green"><%=flash[:notice]%></p>
-  <!-- controls layer -->
-  <div class="controls">
-    <span class="actions"><%= link_to_remote "Actions", :update=>'actions', :url=>thing_url(:id=>@thing.id)%></span>
-    <span class="edit">
-      <%if session[:mode]=='show'%>
-        <%=link_to("Edit",edit_thing_url(:id=>@thing.id))-%>
-      <%elsif session[:mode]=='edit'%>
-        <%=link_to("Done",thing_url(:id=>@thing.id,:mode=>'show'))-%>
-      <%end%>
-
-    <%= image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
-
-    </span>
-  </div>
+  <%= image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
   <!-- path layer -->
   <div class="path">
     <%
@@ -34,15 +21,6 @@
       <%=text_field(:thing,:search, :size=>20)-%></p>
     </div>
   <%end-%>
-  <%if session[:mode]=='edit'%>
-    <%= set_focus_to_id 'thing_key' %>
-  <%elsif session[:mode]=='show'%>
-    <%= set_focus_to_id 'thing_search' %>
-  <%end%>
-  <%if session[:mode]=='edit'%>
-    <%=render :partial=>'add_tag'%>
-    <%=render :partial=>'clip_members'-%>
-  <%end%>
   <%=render :partial=>'members'-%>
   <%=render :partial=>'tag_list'-%>
   <%= observe_field :thing_search,

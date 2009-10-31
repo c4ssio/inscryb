@@ -1,5 +1,9 @@
 <!--member layer-->
 <div class="member" id="member_wrapper">
+  <%if session[:mode]=='edit'%>
+    <%=render :partial=>'add_tag'%>
+    <%=render :partial=>'clip_members'-%>
+  <%end%>
   <span class="members">Members</span>
   <table class="member">
     <% @thing.members.each do |m|%>
