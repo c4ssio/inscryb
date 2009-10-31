@@ -2,23 +2,16 @@ root {
     display: block;
 }
 
-.path {
-	color: #444;
-    border: 2px solid black;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-	background: #ffa;
-	margin-top: 2px;
-	margin-bottom: 2px;
-	padding-left: 4px;
-	padding-right: 4px;
+body {
+	font: 80% times, serif;
 }
 
 input, select {
 	color: #444;
     border: 1px solid black;
 	background: #ffc;
-	
+	padding: 0px;
+	margin: 0px;
 }
 
 .target {
@@ -26,25 +19,31 @@ input, select {
 	font-size: 150%;
 }
 
-.search {
-	color: #444;
-    border: 2px solid black;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-	background: #ffa;
-	padding-left: 4px;
-	padding-right: 4px;
+a {
+	color: #44a;
 }
 
-.member table {
+a:hover {
+	color: #004;
+}
+
+.path,
+.search,
+.member table,
+.new_tag_key_value,
+.tag_list table {
+	width: 90%;
 	color: #444;
     border: 2px solid black;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	background: #ffa;
-	width: 100%;
 	padding-left: 4px;
 	padding-right: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	margin-top: 2px;
+	margin-bottom: 2px;
 }
 
 p {
