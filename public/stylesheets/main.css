@@ -1,5 +1,5 @@
 root { 
-    display: block;
+	display: block;
 }
 
 body {
@@ -8,7 +8,7 @@ body {
 
 input, select {
 	color: #444;
-    border: 1px solid black;
+	border: 1px solid black;
 	background: #ffc;
 	padding: 0px;
 	margin: 0px;
@@ -38,10 +38,10 @@ a:hover {
 .member_action_list,
 .new_tag_key_value,
 .tag_list_container {
-	width: 95%;
+	width: 100%;
 	color: #444;
-    border-bottom: 2px solid black;
-    border-top: 2px solid black;
+	border-bottom: 2px solid black;
+	border-top: 2px solid black;
 	border-left: none;
 	border-right: none;
 	background: #ffa;
