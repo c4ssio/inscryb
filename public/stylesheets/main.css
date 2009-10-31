@@ -27,9 +27,15 @@ a:hover {
 	color: #004;
 }
 
+.member_container {
+	border: none;
+	padding: 0px;
+	margin: 0px;
+}
+
 .path,
 .search,
-.member table,
+.member_action_list,
 .new_tag_key_value,
 .tag_list table {
 	width: 95%;
