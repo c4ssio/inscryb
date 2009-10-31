@@ -142,10 +142,9 @@ class ThingsController < ApplicationController
 
     session[:mode] = (@_params[:mode] || session[:mode] || 'show')
     if @_params[:thing]
-      if @_params[:thing][:search] == ""
-        session[:search] = nil
-      else
-        session[:search] = @_params[:thing][:search]
+      if @_params[:thing][:search]
+      session[:search] = @_params[:thing][:search]
+      session[:search]=nil if session[:search]==""
       end
       #user has defined thing by submitting form (such as from drop-down)
       @thing = (@_params[:thing][:id] || @_params[:id]).to_i.th
