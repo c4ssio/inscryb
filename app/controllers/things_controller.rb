@@ -2,12 +2,12 @@ class ThingsController < ApplicationController
 
   def index
     #use 'members' context and 'show' mode by default
-    session[:context] = 'members'
-    #session[:mode] = 'show'
     #5 represents the ID for San Francisco
     #1 represents the ID for the inscryb root user
     session[:user_id]=1
-    redirect_to(:action=>'show', :id=>5)
+
+    thing_id = (@_params[:thing] ? @_params[:thing][:id] : 5)
+    redirect_to(:action=>'show', :id=>thing_id)
   end
 
   def search
