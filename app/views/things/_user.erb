@@ -1,0 +1,43 @@
+<!--member layer-->
+<div class="member_container">
+  <div class="member_action_list">
+    <table class="member">
+      <% @thing.members.each do |m|%>
+        <% if (!session[:search] && m.members) || (session[:search] && (m.matches.length>0 || m.is_match))
+          #for searches, only include member matches or members with matches
+          %>
+          <tr class="member">
+            <td class="member">
+              <div class="member">
+                <%if session[:mode]=='edit'%>
+                  <%=link_to_remote('d',
+                    :url=>{:action=>'delete_tag',:id=>@thing.id,:thing_id=>m.id},
+                    :update=>'member_and_tag_wrapper'
+                  )%>
+                  <%=link_to_remote('x',
+                    :url=>{:action=>'clip_tag',:id=>@thing.id,:thing_id=>m.id, :op=>'cut'},
+                    :update=>'clip_member_wrapper')%>
+                <%end%>
+                <%=link_to(m.name,thing_url(:id=>m.id)) %>
+                <span>
+                  <%if (!session[:search] && m.members.length>0)%>
+                    <%="(" + m.members.length.to_s +
+                      " thing" + ("s" if m.members.length>1).to_s +
+                      " )"%>
+                  <%elsif session[:search] && m.matches.length>0%>
+                    <%="("%>
+                    <%m.matches.each do |mm|%>
+                    <%=link_to(mm.name,thing_url(:id=>mm.parent.id))%>
+                    <%end%>
+                    <%=" )"%>
+                  <%end%>
+                </span>
+              </div>
+            </td>
+          </tr>
+        <%end%>
+      <%end%>
+    </table>
+  </div>
+</div>
+

@@ -27,7 +27,7 @@ class ThingsController < ApplicationController
 
   def add_tag
     #this action is used to attach new tags/members to a thing
-    @thing = @_params[:id].to_i.th
+    identify unless @thing
 
     #check to determine whether tag already exists
 
@@ -49,15 +49,16 @@ class ThingsController < ApplicationController
 
     identify unless @thing
 
-    if ['cut','cpy'].include?(@_params[:op])
+    if @_params[:op]=='cut'
       op_id = Operation.find_or_create_by_name(@_params[:op]).id
       ClipboardMember.find_or_create_by_user_id_and_thing_id_and_operation_id(
         session[:user_id],@_params[:thing_id].to_i,op_id)
         #this ensures that only the clip renders
-        @clip_only=true
     end
 
     @_params[:clip_id].to_i.cm.delete if @_params[:op]=='cancel'
+
+    @clip_only=true if ['cut','cancel'].include?(@_params[:op])
 
     if @_params[:op]=='paste'
       @cm = @_params[:clip_id].to_i.cm
@@ -79,7 +80,7 @@ class ThingsController < ApplicationController
 
   def delete_tag
 
-    @thing = @_params[:id].to_i.th
+    identify unless @thing
     thing_id = @_params[:thing_id]
     tag_id = @_params[:tag_id]
 
@@ -145,9 +146,24 @@ class ThingsController < ApplicationController
   end
 
   def show
-    
     retrieve
+  end
 
+  def login
+    case request.method
+      when :post
+      if session[:user] = User.authenticate(params[:user][:login], params[:user][:password])
+        flash[:notice]  = 'Login successful'
+      else
+        session[:user] = nil
+        flash.now[:notice]  = 'Login unsuccessful'
+        @login = params[:user_login]
+      end
+    end
+  end
+
+  def logout
+    session[:user] = nil
   end
 
 end
