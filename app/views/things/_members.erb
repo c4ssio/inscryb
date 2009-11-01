@@ -10,11 +10,11 @@
             <td class="member">
               <div class="member">
                 <%if session[:mode]=='edit'%>
-                  <%=link_to_remote('D',
+                  <%=link_to_remote('d',
                     :url=>{:action=>'delete_tag',:id=>@thing.id,:thing_id=>m.id},
                     :update=>'member_and_tag_wrapper'
                   )%>
-                  <%=link_to_remote('X',
+                  <%=link_to_remote('x',
                     :url=>{:action=>'clip_tag',:id=>@thing.id,:thing_id=>m.id, :op=>'cut'},
                     :update=>'clip_member_wrapper')%>
                 <%end%>
