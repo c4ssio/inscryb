@@ -70,6 +70,12 @@ a:hover {
 	background: #e0e0f8;
 }
 
+.new_tag_key,
+.new_tag_value {
+	float: left;
+	margin-right: 6px;
+}
+
 p {
 	margin-top: 2px;
 	margin-bottom: 2px;
