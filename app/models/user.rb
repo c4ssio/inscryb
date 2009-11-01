@@ -6,8 +6,8 @@ class User < ActiveRecord::Base
     user = self.find_by_name(name)
     if user.nil?
       #create a new user
-      user = self.create(:name=>name, :password=>password)
-    elsif Password::check(password,user.password)
+      user = self.create(:name=>name, :password_hash=>password)
+    elsif Password::check(password,user.password_hash)
       #return the found user
       user
     else
@@ -19,7 +19,7 @@ class User < ActiveRecord::Base
 
   # Hash the password before saving the record
   def before_create
-    self.password = Password::update(self.password)
+    self.password_hash = Password::update(self.password_hash)
   end
 
 end
