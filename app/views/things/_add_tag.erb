@@ -1,4 +1,8 @@
-<%form_for(:thing, @thing, :url=>add_tag_url(:id=>@thing)) do |f|%>
+<%remote_form_for(:thing, 
+  @thing,
+  :url=>add_tag_url(:id=>@thing),
+  :method => :post,
+  :update => 'member_and_tag_wrapper') do |f|%>
 <div class="new_tag_key_value">
   <div>Add Tag / Member ('has' or 'in' for Members)</div>
   <div class="new_tag_key"><span>Key</span>

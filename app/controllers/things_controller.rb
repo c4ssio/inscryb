@@ -25,15 +25,6 @@ class ThingsController < ApplicationController
 
   end
 
-  def new
-    
-  end
-
-  def edit
-    session[:mode]='edit'
-    redirect_to(:action=>'show', :id=>@_params[:id].to_i)
-  end
-
   def add_tag
     #this action is used to attach new tags/members to a thing
     @thing = @_params[:id].to_i.th
@@ -48,7 +39,9 @@ class ThingsController < ApplicationController
       flash[:notice] = "added #{@_params[:thing][:key].to_sym} => #{@_params[:thing][:value]}"
     end
 
-    redirect_to(:action=>'show', :id=>@thing.id)
+    retrieve
+
+    render(:action=>'retrieve')
 
   end
 
@@ -75,7 +68,7 @@ class ThingsController < ApplicationController
         end
       end
     end
-    redirect_to(:action=>'show', :id=>@_params[:id].to_i)
+    redirect_to(:action=>'retrieve', :id=>@_params[:id].to_i)
   end
 
   def delete_tag
@@ -90,7 +83,7 @@ class ThingsController < ApplicationController
 
     @thing.dt(key => value)
     
-    redirect_to(:action=>'show', :id=>@thing.id)
+    redirect_to(:action=>'retrieve', :id=>@thing.id)
 
   end
 
@@ -98,20 +91,8 @@ class ThingsController < ApplicationController
 
     @thing = @_params[:id].to_i.th
 
-    redirect_to(:action=>'show', :id=>@thing.id)
+    redirect_to(:action=>'retrieve', :id=>@thing.id)
     
-  end
-
-  def add_thing
-
-    #get thing
-    @thing = @_params[:id].to_i.th
-    @new_thing = Thing.create
-    @new_thing.at(:name=>@_params[:thing][:member_name])
-    @new_thing.at(:in=>@thing.id)
-    flash[:notice] = "added #{@_params[:thing][:member_name]} to #{@thing.name}"
-    redirect_to(:action=>'show', :id=>@thing.id)
-
   end
 
   def retrieve
@@ -169,7 +150,7 @@ class ThingsController < ApplicationController
   def show
     
     retrieve
-    
+
   end
 
 end

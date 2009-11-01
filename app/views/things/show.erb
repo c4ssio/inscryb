@@ -23,11 +23,17 @@
       <%=text_field(:thing,:search, :size=>10)-%></p>
     </div>
   <%end-%>
+  <%if session[:mode]=='edit'%>
+    <%=render :partial=>'add_tag'%>
+    <%=render :partial=>'clip_members'-%>
+  <%end%>
+  <div id="member_and_tag_wrapper">
   <%=render :partial=>'members'-%>
   <%=render :partial=>'tag_list'-%>
+  </div>
   <%= observe_field :thing_search,
     :frequency => 0.5,
-    :update => 'member_wrapper',
+    :update => 'member_and_tag_wrapper',
     :before=> "Element.show('spinner')",
     :complete => "Element.hide('spinner')",
     :url => {:action=>'retrieve'},

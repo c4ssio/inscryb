@@ -1,7 +1,0 @@
-<%form_for(:thing, @thing, :url=>add_thing_url(:id=>@thing)) do |f|%>
-<span>Add Member</span>
-  <div class="new_member_name"><span>Name</span>
-    <%=f.text_field(:member_name, :size=>20)%>
-  </div>
-    <%=submit_tag('Add Member')%>
-<%end -%>
