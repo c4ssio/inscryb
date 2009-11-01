@@ -6,7 +6,7 @@
   %>
   <div class="target_group">
       <%=h @thing.name -%>
-  <%form_tag(things_url,{:method=>'get'}) do%>
+    <%form_tag(things_url,{:method=>'get'}) do%>
       <%=select('thing','id', parent_nodes,{},{:onchange=>"$(this).up('form').submit()"} ) if parent_nodes.last
       #clicking on form items or clicking Go submits and loads item
       %>
@@ -22,13 +22,8 @@
       <%=text_field(:thing,:search, :size=>10)-%></p>
     </div>
   <%end-%>
-  <%if session[:mode]=='edit'%>
-    <%=render :partial=>'add_tag'%>
-    <%=render :partial=>'clip_members'-%>
-  <%end%>
   <div id="member_and_tag_wrapper">
-  <%=render :partial=>'members'-%>
-  <%=render :partial=>'tag_list'-%>
+  <%=render :file=>'things/retrieve'%>
   </div>
   <%= observe_field :thing_search,
     :frequency => 0.5,
@@ -37,9 +32,9 @@
     :complete => "Element.hide('spinner')",
     :url => {:action=>'retrieve'},
     :with => "'thing[search]=' + encodeURIComponent(value)"%>
-  <%if session[:mode]=='edit'%>
-  <%=set_focus_to_id('thing_key')%>
-  <%elsif session[:mode]=='show'%>
+  <%if session[:search]%>
   <%=set_focus_to_id('thing_search')%>
+  <%else%>
+  <%=set_focus_to_id('thing_key')%>
   <%end%>
 

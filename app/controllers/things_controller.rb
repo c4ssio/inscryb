@@ -47,10 +47,14 @@ class ThingsController < ApplicationController
 
   def clip_tag
 
+    identify unless @thing
+
     if ['cut','cpy'].include?(@_params[:op])
       op_id = Operation.find_or_create_by_name(@_params[:op]).id
       ClipboardMember.find_or_create_by_user_id_and_thing_id_and_operation_id(
         session[:user_id],@_params[:thing_id].to_i,op_id)
+        #this ensures that only the clip renders
+        @clip_only=true
     end
 
     @_params[:clip_id].to_i.cm.delete if @_params[:op]=='cancel'
@@ -68,7 +72,9 @@ class ThingsController < ApplicationController
         end
       end
     end
-    redirect_to(:action=>'retrieve', :id=>@_params[:id].to_i)
+
+    @clip_members = ClipboardMember.find_all_by_user_id(session[:user_id])
+
   end
 
   def delete_tag
@@ -83,21 +89,15 @@ class ThingsController < ApplicationController
 
     @thing.dt(key => value)
     
-    redirect_to(:action=>'retrieve', :id=>@thing.id)
+    retrieve
 
-  end
+    render :action=> 'retrieve'
 
-  def destroy
-
-    @thing = @_params[:id].to_i.th
-
-    redirect_to(:action=>'retrieve', :id=>@thing.id)
-    
   end
 
   def retrieve
 
-    identify
+    identify unless @thing
 
     #here we determine whether the user is searching or browsing, which is based on whether
     #a search argument was supplied in @_params above.  If they are searching, we get the
@@ -112,7 +112,8 @@ class ThingsController < ApplicationController
       (session[:search] ? m.matches.length : m.members.length)
     end.reverse
 
-    @clip_members = ClipboardMember.find_all_by_user_id(session[:user_id])
+    clip_tag
+    
   end
 
   def identify
@@ -137,13 +138,9 @@ class ThingsController < ApplicationController
     #to populate search box
     @thing[:search]=session[:search]
 
-    #TODO:remove this hack
-    @thing[:key]=nil
+    #set default values
+    @thing[:key]||='has'
     @thing[:value]=nil
-    @thing[:member_name]=nil
-
-    session[:mode] = (session[:search] ? 'show' : 'edit')
-
 
   end
 

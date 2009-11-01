@@ -4,7 +4,7 @@
     <%@thing.tags.each do |tg|%>
       <tr class="tag_list">
         <%if session[:mode]=='edit'%>
-        <td><%=link_to('Del',delete_tag_url(:thing_id=>@thing.id,:tag_id=>tg.id))%>
+        <td><%=link_to('D',delete_tag_url(:thing_id=>@thing.id,:tag_id=>tg.id))%>
         </td>
         <%end%>
         <td class="tag_list_key">

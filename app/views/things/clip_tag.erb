@@ -1,0 +1,4 @@
+  <%unless session[:search]%>
+    <%=render :partial=>'add_tag' unless @clip_only%>
+    <%=render :partial=>'clip_members'-%>
+  <%end%>
