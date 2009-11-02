@@ -1,24 +1,24 @@
 <!--user layer-->
 <div id="user_wrapper">
-<%if session[:user].id==1 then%>
-<%remote_form_for(:user,
-  @user,
-  :url=>login_url,
-  :method => :post,
-  :update => 'user_wrapper') do |f|%>
-  <div class="user_name"><span>Email</span>
-    <%=f.text_field(:name, :size=>20)%>
-  </div>
-  <div class="password"><span>Password</span>
-    <%=f.password_field(:password_hash, :size=>10)%>
-  </div>
-    <%=submit_tag('Login/Signup')%>
-<%end -%>
-<%else%>
-  <span>Logged in as <b><%=session[:user].name%></b></span>
-  <%=link_to_remote :logout,
-    :url=>logout_url,
-    :method => :post,
-    :update => 'user_wrapper' %>
-<%end%>
+	<%if session[:user].id==1 then%>
+	<%remote_form_for(:user,
+	  @user,
+	  :url=>login_url,
+	  :method => :post,
+	  :update => 'user_wrapper') do |f|%>
+	  <div class="user_name"><span>Email</span>
+	    <%=f.text_field(:name, :size=>20)%>
+	  </div>
+	  <div class="password"><span>Password</span>
+	    <%=f.password_field(:password_hash, :size=>10)%>
+	  </div>
+	    <%=submit_tag('Login/Signup')%>
+	<%end -%>
+	<%else%>
+	  <span>Logged in as <b><%=session[:user].name%></b></span>
+	  <%=link_to_remote :logout,
+	    :url=>logout_url,
+	    :method => :post,
+	    :update => 'user_wrapper' %>
+	<%end%>
 </div>
