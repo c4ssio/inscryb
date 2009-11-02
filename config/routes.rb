@@ -42,7 +42,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :things
 
-  
+  map.login 'users/login', :controller=>'users', :action=>'login'
+  map.logout 'users/logout', :controller=>'users', :action=>'logout'
 
   # See how all your routes lay out with "rake routes"
 

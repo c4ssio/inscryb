@@ -36,6 +36,9 @@
     def cm
       return ClipboardMember.find(self)
     end
+    def u
+      return User.find(self)
+    end
   end
   class BigDecimal
     def tag_value_type
