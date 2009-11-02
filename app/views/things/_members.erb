@@ -25,11 +25,15 @@
                       " thing" + ("s" if m.members.length>1).to_s +
                       " )"%>
                   <%elsif session[:search] && m.matches.length>0%>
+                    <%="(#{m.matches.length.to_s}):"%>
+                    <%m.matches.group_by{|mm| mm.parent}.sort_by{|p,ch|
+                      ch.length}.reverse.each do |p,ch|%>
+                    <%=link_to(p.name,thing_url(:id=>p.id))-%>
                     <%="("%>
-                    <%m.matches.each do |mm|%>
-                    <%=link_to(mm.name,thing_url(:id=>mm.parent.id))%>
+                    <%ch.each do |th|%>
+                    <%=link_to(th.name,thing_url(:id=>th.id)) + (th==ch.last ? " );" : ',') -%>
                     <%end%>
-                    <%=" )"%>
+                    <%end%>
                   <%end%>
                 </span>
               </div>
