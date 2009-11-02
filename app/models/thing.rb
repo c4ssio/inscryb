@@ -169,7 +169,8 @@ class Thing < ActiveRecord::Base
         # New thing Id to be added
         if line.strip != ""
           if (values[0].to_i==0)
-            @th=Thing.create
+            @th=Thing.create(:user_id =>
+                @creator_id )
             thing_cnt +=1
             f.puts @th.id.to_s+line
           end
@@ -255,6 +256,10 @@ class Thing < ActiveRecord::Base
 
     keys[:parent] = TermGroup.fbn('thing_key_parent').members
 
+    #identifies user
+    @creator_id ||=args[:creator_id]
+    args.delete(:creator_id)
+
     args.each do |ksym,v|
 
       #store key and value for these tags;
@@ -269,7 +274,8 @@ class Thing < ActiveRecord::Base
           #if use supplies a string rather than an integer
           #create a new member beneath parent_id and put child under it
           if v.to_i.to_s != v.to_s or v == '0'
-            new_parent = Thing.create
+            new_parent = Thing.create(:user_id =>
+                @creator_id )
             new_parent.at(:name=>v.to_s)
             new_parent.at(:in=>self.parent_id)
             self.at(:in=>new_parent.id)
@@ -288,7 +294,8 @@ class Thing < ActiveRecord::Base
           #if use supplies a string rather than an integer
           #create a new member beneath self
           if v.to_i.to_s != v.to_s or v == '0'
-            new_child = Thing.create
+            new_child = Thing.create(:user_id =>
+                @creator_id )
             puts v.to_s
             new_child.at(:name=>v.to_s)
             new_child.at(:in=>self.id)
@@ -325,13 +332,17 @@ class Thing < ActiveRecord::Base
 
           #add simple text address to tags
           if v.tag_value_type=="term"
-            Tag.find_or_create_by_thing_id_and_key_and_term(self.id,k,v)
+            Tag.find_or_create_by_thing_id_and_key_and_term_and_user_id(
+              self.id,k,v,@creator_id)
           elsif v.tag_value_type=="blurb"
-            Tag.find_or_create_by_thing_id_and_key_and_blurb(self.id,k,v)
+            Tag.find_or_create_by_thing_id_and_key_and_blurb_and_user_id(
+              self.id,k,v,@creator_id)
           elsif v.tag_value_type=="date"
-            Tag.find_or_create_by_thing_id_and_key_and_date(self.id,k,v)
+            Tag.find_or_create_by_thing_id_and_key_and_date_and_user_id(
+              self.id,k,v,@creator_id)
           elsif v.tag_value_type=="number"
-            Tag.find_or_create_by_thing_id_and_key_and_number(self.id,k,v)
+            Tag.find_or_create_by_thing_id_and_key_and_number_and_user_id(
+              self.id,k,v,@creator_id)
           else
             raise "unknown tag_value type"
           end
