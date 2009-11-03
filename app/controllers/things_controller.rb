@@ -38,8 +38,6 @@ class ThingsController < ApplicationController
 
     retrieve
 
-    render(:action=>'retrieve')
-
   end
 
   def clip_tag
@@ -59,19 +57,13 @@ class ThingsController < ApplicationController
 
     if @_params[:op]=='paste'
       @cm = @_params[:clip_id].to_i.cm
-      if @_params[:tag_id]
-        tag = @_params[:tag_id].to_i.tg
-        @cm.thing_id.th.at(tag.key.to_sym => tag.value, :creator_id=>session[:user].id)
-      else
-        @cm.thing_id.th.at(:in => @_params[:id].to_i, :creator_id=>session[:user].id)
-        @cm.delete
-      end
+      @cm.thing_id.th.at(:in => @_params[:id].to_i, :creator_id=>session[:user].id)
+      @cm.delete
       @_params[:op]=nil
-      retrieve
     end
 
-  @clip_members = ClipboardMember.find_all_by_user_id(session[:user].id)
-
+    retrieve
+    
 end
 
 def delete_tag
@@ -81,8 +73,8 @@ def delete_tag
   tag_id = @_params[:tag_id]
 
   #if there is a thing, then key is :has
-  key = thing_id ? :has : tag_id.tg.key.to_sym
-  value = tag_id==0 ? @thing.name : (thing_id.to_i || tag_id.to_i.tg.value)
+  key = thing_id ? :has : tag_id.to_i.tg.key.to_sym
+  value = thing_id ? thing_id.to_i : tag_id.to_i.tg.value
 
   @thing.dt(key => value)
 
@@ -91,8 +83,6 @@ def delete_tag
   end
   
   retrieve
-
-  render :action=> 'retrieve'
 
 end
 
@@ -113,7 +103,15 @@ def retrieve
     (session[:search] ? m.matches.length : m.members.length)
   end.reverse
 
-  clip_tag
+  @clip_members ||= ClipboardMember.find_all_by_user_id(session[:user].id)
+
+  if request.xhr?
+    render :update do |page|
+      page.replace_html 'member_and_tag_wrapper', :file=>'things/retrieve'
+      page.replace_html 'clip_member_wrapper', :partial=>'clip_members'
+      page.replace_html 'path_wrapper', :partial=>'path'
+    end
+  end
     
 end
 

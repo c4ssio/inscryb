@@ -6,12 +6,10 @@
         <td class="clip_members">
           <div class="clip_members">
             <%=link_to_remote('Paste',
-              :url=>{:action=>'retrieve',:clip_id=>cm.id, :op=>'paste'},
-              :update=>'member_and_tag_wrapper')%>
+              :url=>{:action=>'clip_tag',:clip_id=>cm.id, :op=>'paste'})%>
             <%=link_to(cm.thing.name,thing_url(:id=>cm.thing_id))%>
             <%=link_to_remote('Cancel',
-              :url=>{:action=>'clip_tag',:clip_id=>cm.id, :op=>'cancel'},
-              :update=>'clip_member_wrapper')%>
+              :url=>{:action=>'clip_tag',:clip_id=>cm.id, :op=>'cancel'})%>
             <%=cm.operation.name%>
           </div>
         </td>

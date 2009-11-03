@@ -2,8 +2,7 @@
 	<%remote_form_for(:user,
 	  @user,
 	  :url=>login_url,
-	  :method => :post,
-	  :update => 'user_wrapper') do |f|%>
+	  :method => :post) do |f|%>
 	  <div class="user_name"><span>Email</span>
 	    <%=f.text_field(:name, :size=>20)%>
 	  </div>

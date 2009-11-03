@@ -11,12 +11,9 @@
               <div class="member">
                 <%unless session[:search]%>
                   <%=link_to_remote('[d]',
-                    :url=>{:action=>'delete_tag',:id=>@thing.id,:thing_id=>m.id},
-                    :update=>'member_and_tag_wrapper'
-                  )%>
+                    :url=>{:action=>'delete_tag',:id=>@thing.id,:thing_id=>m.id})%>
                   <%=link_to_remote('[x]',
-                    :url=>{:action=>'clip_tag',:id=>@thing.id,:thing_id=>m.id, :op=>'cut'},
-                    :update=>'clip_member_wrapper')%>
+                    :url=>{:action=>'clip_tag',:id=>@thing.id,:thing_id=>m.id, :op=>'cut'})%>
                 <%end%>
                 <%=link_to(m.name,thing_url(:id=>m.id)) %>
                 <span>

@@ -3,8 +3,9 @@
   <table class="tag_list">
     <%@thing.tags.each do |tg|%>
       <tr class="tag_list">
-        <%if session[:mode]=='edit'%>
-        <td><%=link_to('D',delete_tag_url(:thing_id=>@thing.id,:tag_id=>tg.id))%>
+        <%unless session[:search]%>
+        <td><%=link_to_remote('[d]',
+          :url=>{:action=>'delete_tag',:tag_id=>tg.id})%>
         </td>
         <%end%>
         <td class="tag_list_key">
