@@ -282,6 +282,7 @@ class Thing < ActiveRecord::Base
           else
             #if user tries to add thing as child of child, fail:
             raise "can't add parent as child" if v.th.parent_nodes.include?(self.id)
+            raise "can't add self as child" if v.to_i == self.id
             # if the key term is a member of thing_key_child and child is marked as having a different
             # parent, delete that tag; then add self as new parent
             id.th.dt(k.to_sym) if self.parent_id && self.parent_id != v
@@ -303,6 +304,7 @@ class Thing < ActiveRecord::Base
             # do the opposite for parent version
             #if user tries to add thing as parent of parent, fail:
             raise "can't add child as parent" if self.parent_nodes.include?(v)
+            raise "can't add self as parent" if v.to_i == self.id
             self.dt(k.to_sym) if v.th.parent_id && v.th.parent_id != self.id
             @th_oth = v.th
             @th_oth.parent_id = self.id
