@@ -300,7 +300,7 @@ class Thing < ActiveRecord::Base
           if v.to_i.to_s != v.to_s or v == '0'
             #try to find another thing with the same name
             candidates = (@creator_id >1 ? Thing.find_all_by_name(v.to_s) : nil)
-            if candidates
+            if candidates && !candidates.empty?
             not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
             most_complex = not_parents.sort_by{|c| c.paths.length}.last
             new_child = most_complex.copy_to(:dest=>self.id)
