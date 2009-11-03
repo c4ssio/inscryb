@@ -21,8 +21,8 @@ ActiveRecord::Schema.define(:version => 20091101193348) do
   end
 
   create_table "old_tags", :force => true do |t|
-    t.integer  "thing_id",                                                 :null => false
-    t.string   "key",        :limit => 30,                                 :null => false
+    t.integer  "thing_id",                                                                 :null => false
+    t.string   "key",        :limit => 30,                                 :default => "", :null => false
     t.string   "term",       :limit => 30
     t.string   "blurb"
     t.decimal  "number",                   :precision => 18, :scale => 15
@@ -50,8 +50,8 @@ ActiveRecord::Schema.define(:version => 20091101193348) do
   end
 
   create_table "tags", :force => true do |t|
-    t.integer  "thing_id",                                                                :null => false
-    t.string   "key",        :limit => 30,                                                :null => false
+    t.integer  "thing_id",                                                                 :null => false
+    t.string   "key",        :limit => 30,                                 :default => "", :null => false
     t.string   "term",       :limit => 30
     t.string   "blurb"
     t.decimal  "number",                   :precision => 18, :scale => 15
@@ -62,12 +62,12 @@ ActiveRecord::Schema.define(:version => 20091101193348) do
   end
 
   create_table "term_group_members", :force => true do |t|
-    t.integer "term_group_id",               :null => false
-    t.string  "value",         :limit => 30, :null => false
+    t.integer "term_group_id",                               :null => false
+    t.string  "value",         :limit => 30, :default => "", :null => false
   end
 
   create_table "term_groups", :force => true do |t|
-    t.string "name", :null => false
+    t.string "name", :default => "", :null => false
   end
 
   create_table "thing_paths", :force => true do |t|
@@ -94,10 +94,6 @@ ActiveRecord::Schema.define(:version => 20091101193348) do
     t.integer  "node20"
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "thing_types", :force => true do |t|
-    t.string "value", :limit => 30, :null => false
   end
 
   create_table "things", :force => true do |t|
