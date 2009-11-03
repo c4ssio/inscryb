@@ -16,6 +16,7 @@
       <%=text_field(:thing,:search, :size=>10)-%></p>
   </div>
 <%end-%>
+<%=render :file=>'things/clip_tag' unless session[:search]%>
 <div id="member_and_tag_wrapper">
   <%=render :file=>'things/retrieve'%>
 </div>
