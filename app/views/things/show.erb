@@ -14,7 +14,7 @@
     <p><span>Search</span>
       <%= image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
       <%=text_field(:thing,:search, :size=>10)-%>
-      <%=button_to_function('Clr',clear_field('thing_search'), 
+      <%=button_to_function('Clr',clear_field_and_focus('thing_search'),
         :id=>'clear_search_button',:style=>('display:none' unless session[:search]))%>
       </p>
   </div>

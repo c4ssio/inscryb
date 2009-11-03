@@ -5,8 +5,8 @@ module ApplicationHelper
     javascript_tag("$('#{id}').focus()");
   end
 
-  def clear_field(id)
-    return "$('#{id}').value=''";
+  def clear_field_and_focus(id)
+    return "$('#{id}').value='';$('#{id}').focus();";
   end
 
 end
