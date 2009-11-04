@@ -78,6 +78,60 @@ class Thing < ActiveRecord::Base
 
   end
 
+  def copy_members_and_tags_to(args)
+    #args here is :dest, which specifies the thing id under which self should be copied
+    self_pth = self.id.pth
+    depth=(self_pth ? self_pth.nodes.length + 1 : 0)
+
+    @thing_map = Array.new
+    @src_paths = self.paths.select{|p| p.target != self.id}
+
+    #add all targets to map table
+    @src_paths.each do |sp|
+      sth = sp.target.th
+      #strip parent from copy
+      dth = sth.copy; dth.parent_id = nil; dth.save!
+      #add copy to map
+      @thing_map << {:src_id=>sth.id,:dest_id=>dth.id}
+    end
+
+    #go through map and reassign parents for all but direct descendants
+    @thing_map.select{|r| r[:src_id].th.parent!=self }.each do |r|
+      dth = r[:dest_id].th
+      dth.parent_id = @thing_map.select{|rd| r[:src_id].th.parent_id==rd[:src_id]}[0][:dest_id]
+      dth.save!
+    end
+
+    #generate paths for each
+    @src_paths.each do |sp|
+      dp = sp.clone
+      dp.target = @thing_map.select{|r| r[:src_id]==sp.target}[0][:dest_id]
+      if depth>0
+        Array(1..(depth-2)).reverse.each do |n|
+          dp.set_node(n,nil)
+        end
+        (depth..20).each do |n|
+          new_node = @thing_map.select{|r| r[:src_id]==dp.node(n)}[0]
+          dp.set_node(n, new_node[:dest_id]) unless new_node.nil?
+        end
+      end
+      dp.save!
+    end
+
+    #take direct descendants and assign to dest thing
+    @thing_map.select{|r| r[:src_id].th.parent==self }.each do |r|
+      args[:dest].th.at(:has=>r[:dest_id])
+    end
+
+    #take tags and assign to dest thing
+    self.tags.each do |stg|
+      dtg = stg.clone
+      dtg.thing_id = args[:dest]
+      dtg.save!
+    end
+
+  end
+
   def copy_to(args)
     #args here is :dest, which specifies the thing id under which self should be copied
     self_pth = self.id.pth
@@ -260,7 +314,7 @@ class Thing < ActiveRecord::Base
     keys[:parent] = TermGroup.fbn('thing_key_parent').members
 
     #identifies user
-    @creator_id ||=args[:creator_id]
+    @creator_id ||=(args[:creator_id] || 1)
     args.delete(:creator_id)
 
     args.each do |ksym,v|
@@ -301,14 +355,14 @@ class Thing < ActiveRecord::Base
             #try to find another thing with the same name
             candidates = (@creator_id >1 ? Thing.find_all_by_name(v.to_s) : nil)
             if candidates && !candidates.empty?
-            not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
-            most_complex = not_parents.sort_by{|c| c.paths.length}.last
-            new_child = most_complex.copy_to(:dest=>self.id)
+              not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
+              most_complex = not_parents.sort_by{|c| c.paths.length}.last
+              new_child = most_complex.copy_to(:dest=>self.id)
             else
-            new_child = Thing.create(:user_id =>
-                @creator_id )
-            new_child.at(:name=>v.to_s)
-            new_child.at(:in=>self.id)
+              new_child = Thing.create(:user_id =>
+                  @creator_id )
+              new_child.at(:name=>v.to_s)
+              new_child.at(:in=>self.id)
             end
           else
             # do the opposite for parent version
@@ -331,7 +385,8 @@ class Thing < ActiveRecord::Base
 
           #if key is address get geocoding info
           if k=="address"
-  
+            #delete previous address, lng, and lat
+            self.dt(:address);self.dt(:longitude);self.dt(:latitude)
             #replacing '&' with 'and' for geocoding purposes
             geo_rml=Geocoding.get( v.gsub('&',' and ') )
             
@@ -340,6 +395,21 @@ class Thing < ActiveRecord::Base
               self.at(:longitude=>geo_rml[0][8])
               self.at(:latitude=>geo_rml[0][9])
             end
+          #if key is type, find most complex non-parent type and add members and tags
+          elsif k=='type'
+            #try to find another thing with the same type
+            if @creator_id > 1
+            candidates = Tag.search('type ' + v.to_s).select{|tg|
+              tg.term == v.to_s
+            }.collect{|tg| tg.thing}
+              if !candidates.empty?
+                not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
+                most_complex = not_parents.sort_by{|c| c.paths.length}.last
+                most_complex.copy_members_and_tags_to(:dest=>self.id)
+              end
+            end
+            #delete self same tag to avoid dupes
+            self.dt(k.to_sym => v.to_s)
           end
 
           #add simple text address to tags
