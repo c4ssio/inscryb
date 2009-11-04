@@ -47,7 +47,7 @@ a:hover {
 	width: 100%;
 	color: #444;
 	border: 1px solid #88a;
-	background: #cdc;
+	background: #efe;
 	padding-left: 0px;
 	padding-right: 0px;
 	padding-top: 2px;
@@ -77,7 +77,7 @@ a:hover {
 	border-bottom: none;
 	border-left: none;
 	border-right: none;
-	background: #ddf;
+	background: #f8f8ff;
 	padding-left: 2px;
 	padding-right: 0px;
 	padding-top: 2px;
@@ -93,7 +93,7 @@ a:hover {
 .member_action_list:hover,
 .new_tag_key_value:hover,
 .tag_list_container:hover {
-	background: #e0e0f8;
+	background: #fafaff;
 }
 
 .new_tag_key,
