@@ -19,9 +19,9 @@
       </p>
   </div>
 <%end-%>
-<%=render :partial=>'add_tag' unless session[:search]-%>
+<%=render :partial=>'add_tag' unless (session[:search] || session[:user].id==1)-%>
 <div class="clip_members" id="clip_member_wrapper">
-<%=render :partial=>'clip_members' unless session[:search]-%>
+<%=render :partial=>'clip_members' unless (session[:search] || session[:user].id==1)-%>
 </div>
 <div id="member_and_tag_wrapper">
   <%=render :file=>'things/retrieve'%>
@@ -32,7 +32,7 @@
   :complete => "Element.hide('spinner')",
   :url => {:action=>'retrieve'},
   :with => "'thing[search]=' + encodeURIComponent(value)"%>
-<%if session[:search]%>
+<%if (session[:search] || session[:user]==1)%>
   <%=set_focus_to_id('thing_search')%>
 <%else%>
   <%=set_focus_to_id('thing_key')%>

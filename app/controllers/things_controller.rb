@@ -81,7 +81,7 @@ class ThingsController < ApplicationController
     key = thing_id ? :has : tag_id.to_i.tg.key.to_sym
     value = thing_id ? thing_id.to_i : tag_id.to_i.tg.value
 
-    @thing.dt(key => value)
+    @thing.dt(key => value,:creator_id=>session[:user].id)
 
     if thing_id
       ClipboardMember.find_all_by_thing_id(thing_id).each {|cm| cm.delete}

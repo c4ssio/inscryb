@@ -441,6 +441,10 @@ class Thing < ActiveRecord::Base
     keys[:child] = TermGroup.fbn('thing_key_child').members
     keys[:parent] = TermGroup.fbn('thing_key_parent').members
 
+    #identifies user
+    @creator_id ||=(args[:creator_id] || 1)
+    args.delete(:creator_id)
+
     #if user has provided only a symbol, fill it out to produce hash
     if args.class == Symbol
       ksym = args
@@ -471,8 +475,8 @@ class Thing < ActiveRecord::Base
 
         if keys[:child].include?(k)
           if self.parent_id == v
-            OldTag.find_or_create_by_thing_id_and_key_and_number_and_created_at(
-              self.id,"parent_id",self.parent_id,self.created_at)
+            OldTag.find_or_create_by_thing_id_and_key_and_number_and_created_at_and_user_id(
+              self.id,"parent_id",self.parent_id,self.created_at,@creator_id)
             self.parent_id = nil
             self.save!
             #nil out nodes on all paths down to and
@@ -491,8 +495,8 @@ class Thing < ActiveRecord::Base
         elsif keys[:parent].include?(k) 
           if v.th.parent_id == self.id
             @th_oth = v.th
-            OldTag.find_or_create_by_thing_id_and_key_and_number_and_created_at(
-              @th_oth.id,"parent_id",@th_oth.parent_id,self.created_at)
+            OldTag.find_or_create_by_thing_id_and_key_and_number_and_created_at_and_user_id(
+              @th_oth.id,"parent_id",@th_oth.parent_id,self.created_at,@creator_id)
             @th_oth.parent_id = nil
             @th_oth.save!
             #nil out nodes on all paths down to and
@@ -510,8 +514,8 @@ class Thing < ActiveRecord::Base
           end
         elsif k=="name" 
           if self.name==v
-            OldTag.find_or_create_by_thing_id_and_key_and_term_and_created_at(
-              self.id,"name",self.name,self.created_at)
+            OldTag.find_or_create_by_thing_id_and_key_and_term_and_created_at_and_user_id(
+              self.id,"name",self.name,self.created_at,@creator_id)
             self.name = nil
             self.save!
           end
@@ -526,8 +530,8 @@ class Thing < ActiveRecord::Base
 
           #move each tag into the OldTag table
           @curr_tags.each do |t|
-            OldTag.find_or_create_by_thing_id_and_key_and_term_and_blurb_and_number_and_date_and_created_at(
-              self.id,t.key,t.term,t.blurb,t.number,t.date,t.created_at
+            OldTag.find_or_create_by_thing_id_and_key_and_term_and_blurb_and_number_and_date_and_created_at_and_user_id(
+              self.id,t.key,t.term,t.blurb,t.number,t.date,t.created_at,@creator_id
             )
             t.delete
           end

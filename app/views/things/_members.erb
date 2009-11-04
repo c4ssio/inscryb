@@ -9,7 +9,7 @@
           <tr class="member">
             <td class="member">
               <div class="member">
-                <%unless session[:search]%>
+                <%unless (session[:search] || session[:user].id==1)%>
                   <%=link_to_remote('[d]',
                     :url=>{:action=>'delete_tag',:id=>@thing.id,:thing_id=>m.id})%>
                   <%=link_to_remote('[x]',

@@ -11,16 +11,12 @@ class UsersController < ApplicationController
         @login = params[:user][:name]
       end
     end
-    if request.xhr?
-      render :update do |page|
-      page.replace_html 'user_wrapper', :file=>'users/login'
-      end
-    end
+    redirect_to :controller=>'things',:action=>'retrieve'
   end
 
   def logout
     session[:user] = 1.u
-    render :action=>'login'
+    redirect_to :controller=>'things', :action=>'retrieve'
   end
 
 

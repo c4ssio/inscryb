@@ -1,8 +1,6 @@
 	<%if session[:user].id==1 then%>
-	<%remote_form_for(:user,
-	  @user,
-	  :url=>login_url,
-	  :method => :post) do |f|%>
+	<%form_for(:user,
+	  :url=>login_url) do |f|%>
 	  <div class="user_name"><span>Email</span>
 	    <%=f.text_field(:name, :size=>20)%>
 	  </div>
@@ -13,8 +11,6 @@
 	<%end -%>
 	<%else%>
 	  <span>Logged in as <b><%=session[:user].name%></b></span>
-	  <%=link_to_remote :logout,
-	    :url=>logout_url,
-	    :method => :post,
-	    :update => 'user_wrapper' %>
+	  <%=link_to 'logout',
+	    logout_url%>
 	<%end%>
