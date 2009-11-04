@@ -37,8 +37,8 @@ ActionController::Routing::Routes.draw do |map|
   map.delete_tag '/things/:id/delete_tag/', :controller=>'things', :action=>'delete_tag'
   map.clip_tag '/things/:id/clip_tag/', :controller=>'things', :action=>'clip_tag'
   map.add_thing '/things/:id/add_thing/', :controller=>'things', :action=>'add_thing'
-
   map.retrieve '/things/:id', :controller=>'things', :action=>'retrieve', :conditions => {:method => :post}
+  map.rename_thing '/things/:id/rename_thing', :controller=>'things', :action=>'rename_thing'
 
   map.resources :things
 

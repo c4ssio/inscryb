@@ -22,6 +22,11 @@ class ThingsController < ApplicationController
 
   end
 
+  def rename_thing
+    @_params[:id].to_i.th.at(:name=>@_params[:name])
+    render :nothing
+  end
+
   def add_tag
     #this action is used to attach new tags/members to a thing
     identify unless @thing

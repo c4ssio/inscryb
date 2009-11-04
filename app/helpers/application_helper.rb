@@ -9,4 +9,22 @@ module ApplicationHelper
     return "$('#{id}').value='';$('#{id}').focus();";
   end
 
+  def submit_form_and_clear_field_and_focus(id)
+    return "this.form.submit();$('#{id}').value='';$('#{id}').focus();";
+  end
+
+  def rename_prompt
+    javascript_tag %Q{
+  function x_rename_prompt()
+  {
+    var name = prompt('Enter New Name', '');
+    if (name == null) return;
+    $('thing_name_wrapper').textContent=name;
+    #{remote_function :url => {:action => 'rename_thing', :id =>
+@thing.id}, :with => "'name=' + name" }
+  }
+    
+}
+  end
+
 end
