@@ -1,41 +1,40 @@
+<!--user layer-->
+<div class="user_wrapper" id="user_wrapper">
   <%=render :file=>'users/login'%>
-  <!-- path layer -->
-  <div class="path">
-    <%
-    #make a drop-down for the path
-    parent_nodes=@thing.parent_nodes.collect{|n| [n.th.name,n]}.reverse
-  %>
-  <div class="target_group">
-      <%=h @thing.name -%>
-    <%form_tag(things_url,{:method=>'get'}) do%>
-      <%=select('thing','id', parent_nodes,{},{:onchange=>"$(this).up('form').submit()"} ) if parent_nodes.last
-      #clicking on form items or clicking Go submits and loads item
-      %>
-      <%=submit_tag("Go") if parent_nodes.last%>
-    <%end-%>
-    </div>
+</div>
+<!-- path layer -->
+<div class="path">
+  <div class="target_group" id="path_wrapper">
+    <%=render :partial=>'path'%>
   </div>
-  <!--search layer-->
-  <%form_tag('javascript:void(0)') do%>
-    <div class="search">
-      <p><span>Search</span>
+</div>
+<!--search layer-->
+<%form_tag('javascript:void(0)') do%>
+  <div class="search">
+    <p><span>Search</span>
       <%= image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
-      <%=text_field(:thing,:search, :size=>10)-%></p>
-    </div>
-  <%end-%>
-  <div id="member_and_tag_wrapper">
-  <%=render :file=>'things/retrieve'%>
+      <%=text_field(:thing,:search, :size=>10)-%>
+      <%=button_to_function('Clr',clear_field_and_focus('thing_search'),
+        :id=>'clear_search_button',:style=>('display:none' unless session[:search]))%>
+      </p>
   </div>
-  <%= observe_field :thing_search,
-    :frequency => 0.5,
-    :update => 'member_and_tag_wrapper',
-    :before=> "Element.show('spinner')",
-    :complete => "Element.hide('spinner')",
-    :url => {:action=>'retrieve'},
-    :with => "'thing[search]=' + encodeURIComponent(value)"%>
-  <%if session[:search]%>
+<%end-%>
+<%=render :partial=>'add_tag' unless session[:search]-%>
+<div class="clip_members" id="clip_member_wrapper">
+<%=render :partial=>'clip_members' unless session[:search]-%>
+</div>
+<div id="member_and_tag_wrapper">
+  <%=render :file=>'things/retrieve'%>
+</div>
+<%= observe_field :thing_search,
+  :frequency => 0.5,
+  :before=> "Element.show('spinner')",
+  :complete => "Element.hide('spinner')",
+  :url => {:action=>'retrieve'},
+  :with => "'thing[search]=' + encodeURIComponent(value)"%>
+<%if session[:search]%>
   <%=set_focus_to_id('thing_search')%>
-  <%else%>
+<%else%>
   <%=set_focus_to_id('thing_key')%>
-  <%end%>
+<%end%>
 

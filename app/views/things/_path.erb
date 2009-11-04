@@ -1,0 +1,8 @@
+<%parent_nodes=@thing.parent_nodes.collect{|n| [n.th.name,n]}.reverse%>
+<%=h @thing.name -%>
+<%form_tag(things_url,{:method=>'get'}) do%>
+  <%=select('thing','id', parent_nodes,{},{:onchange=>"$(this).up('form').submit()"} ) if parent_nodes.last
+  #clicking on form items or clicking Go submits and loads item
+  %>
+  <%=submit_tag("Go") if parent_nodes.last%>
+<%end-%>

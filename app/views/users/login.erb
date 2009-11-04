@@ -1,11 +1,8 @@
-<!--user layer-->
-<div class="user_wrapper" id="user_wrapper">
 	<%if session[:user].id==1 then%>
 	<%remote_form_for(:user,
 	  @user,
 	  :url=>login_url,
-	  :method => :post,
-	  :update => 'user_wrapper') do |f|%>
+	  :method => :post) do |f|%>
 	  <div class="user_name"><span>Email</span>
 	    <%=f.text_field(:name, :size=>20)%>
 	  </div>
@@ -21,4 +18,3 @@
 	    :method => :post,
 	    :update => 'user_wrapper' %>
 	<%end%>
-</div>

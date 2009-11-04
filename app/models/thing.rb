@@ -83,8 +83,8 @@ class Thing < ActiveRecord::Base
     self_pth = self.id.pth
     depth=(self_pth ? self_pth.nodes.length + 1 : 0)
 
-    dself = self.copy; dself.parent_id = nil; dself.save!
     @thing_map = Array.new
+    @src_paths = self.paths
 
     #add all targets to map table
     @src_paths.each do |sp|
@@ -95,30 +95,33 @@ class Thing < ActiveRecord::Base
       @thing_map << {:src_id=>sth.id,:dest_id=>dth.id}
     end
 
+    dself_id = @thing_map.select{|r| r[:src_id]==self.id}[0][:dest_id]
+
     #go through map and reassign parents for all but main
-    @thing_map.select{|r| r[:dest_id]!=dself.id }.each do |r|
+    @thing_map.select{|r| r[:dest_id]!=dself_id }.each do |r|
       dth = r[:dest_id].th
       dth.parent_id = @thing_map.select{|rd| r[:src_id].th.parent_id==rd[:src_id]}[0][:dest_id]
+      dth.save!
     end
 
     #generate paths for each
     @src_paths.each do |sp|
       dp = sp.clone
-      dp.target = sp.target
+      dp.target = @thing_map.select{|r| r[:src_id]==sp.target}[0][:dest_id]
       if depth>0
-        Array(1..(depth-1)).reverse.each do |n|
+        Array(1..(depth-2)).reverse.each do |n|
           dp.set_node(n,nil)
         end
         (depth..20).each do |n|
           new_node = @thing_map.select{|r| r[:src_id]==dp.node(n)}[0]
-          dp.set_node(n, new_node[:dest_id])
+          dp.set_node(n, new_node[:dest_id]) unless new_node.nil?
         end
       end
       dp.save!
     end
 
     #take top member corresponding to self on thing_map and add it to destination
-    dself.th.at(:in=>args[:dest])
+    dself_id.th.at(:in=>args[:dest])
 
   end
 
@@ -282,6 +285,7 @@ class Thing < ActiveRecord::Base
           else
             #if user tries to add thing as child of child, fail:
             raise "can't add parent as child" if v.th.parent_nodes.include?(self.id)
+            raise "can't add self as child" if v.to_i == self.id
             # if the key term is a member of thing_key_child and child is marked as having a different
             # parent, delete that tag; then add self as new parent
             id.th.dt(k.to_sym) if self.parent_id && self.parent_id != v
@@ -294,15 +298,23 @@ class Thing < ActiveRecord::Base
           #if use supplies a string rather than an integer
           #create a new member beneath self
           if v.to_i.to_s != v.to_s or v == '0'
+            #try to find another thing with the same name
+            candidates = (@creator_id >1 ? Thing.find_all_by_name(v.to_s) : nil)
+            if candidates && !candidates.empty?
+            not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
+            most_complex = not_parents.sort_by{|c| c.paths.length}.last
+            new_child = most_complex.copy_to(:dest=>self.id)
+            else
             new_child = Thing.create(:user_id =>
                 @creator_id )
-            puts v.to_s
             new_child.at(:name=>v.to_s)
             new_child.at(:in=>self.id)
+            end
           else
             # do the opposite for parent version
             #if user tries to add thing as parent of parent, fail:
             raise "can't add child as parent" if self.parent_nodes.include?(v)
+            raise "can't add self as parent" if v.to_i == self.id
             self.dt(k.to_sym) if v.th.parent_id && v.th.parent_id != self.id
             @th_oth = v.th
             @th_oth.parent_id = self.id
