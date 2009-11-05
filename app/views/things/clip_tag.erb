@@ -1,4 +1,4 @@
-  <%unless session[:search]%>
+  <%unless (session[:search] || session[:user].id==1)%>
     <%=render :partial=>'add_tag'-%>
     <%=render :partial=>'clip_members'-%>
   <%end%>
