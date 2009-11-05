@@ -21,7 +21,7 @@ module ApplicationHelper
     if (name == null) return;
     $('thing_name_wrapper').textContent=name;
     #{remote_function :url => {:action => 'rename_thing', :id =>
-@thing.id}, :with => "'name=' + name" }
+@thing.id}, :with => "'name=' + name", :method=>'post' }
   }
     
 }

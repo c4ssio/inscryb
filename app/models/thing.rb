@@ -315,7 +315,7 @@ class Thing < ActiveRecord::Base
 
     #identifies user
     @creator_id ||=(args[:creator_id] || 1)
-    args.delete(:creator_id)
+    args.delete(:creator_id) if args[:creator_id]
 
     args.each do |ksym,v|
 
@@ -400,7 +400,7 @@ class Thing < ActiveRecord::Base
             #try to find another thing with the same type
             if @creator_id > 1
             candidates = Tag.search('type ' + v.to_s).select{|tg|
-              tg.term == v.to_s
+              tg && tg.term == v.to_s
             }.collect{|tg| tg.thing}
               if !candidates.empty?
                 not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
@@ -441,9 +441,6 @@ class Thing < ActiveRecord::Base
     keys[:child] = TermGroup.fbn('thing_key_child').members
     keys[:parent] = TermGroup.fbn('thing_key_parent').members
 
-    #identifies user
-    @creator_id ||=(args[:creator_id] || 1)
-    args.delete(:creator_id)
 
     #if user has provided only a symbol, fill it out to produce hash
     if args.class == Symbol
@@ -460,6 +457,11 @@ class Thing < ActiveRecord::Base
         args = {ksym => Tag.find(:all,:conditions=>"thing_id=#{self.id} and tags.key='#{k}'").collect{ |tg| tg.value } }
       end
     end
+
+    #identifies user
+    @creator_id ||=(args[:creator_id] || 1)
+    args.delete(:creator_id) if args[:creator_id]
+
 
     #with any symbols converted to hashes, go through hash and perform deletions
 

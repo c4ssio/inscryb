@@ -1,15 +1,15 @@
 <!--clip_members layer-->
-
   <table class="clip_members">
     <%@clip_members.each do |cm|%>
       <tr class="clip_members">
         <td class="clip_members">
           <div class="clip_members">
             <%=link_to_remote('Paste',
-              :url=>{:action=>'clip_tag',:clip_id=>cm.id, :op=>'paste'})%>
+              :url=>{:action=>'clip_tag',:clip_id=>cm.id, :op=>'paste'}, :method=>'post')%>
             <%=link_to(cm.thing.name,thing_url(:id=>cm.thing_id))%>
             <%=link_to_remote('Cancel',
-              :url=>{:action=>'clip_tag',:clip_id=>cm.id, :op=>'cancel'})%>
+              :url=>{:action=>'clip_tag',:clip_id=>cm.id, :op=>'cancel'},
+              :method=>'post')%>
             <%=cm.operation.name%>
           </div>
         </td>

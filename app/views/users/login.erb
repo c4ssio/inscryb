@@ -1,6 +1,6 @@
 	<%if !session[:user] || session[:user].id==1 then%>
 	<%form_for(:user,
-	  :url=>login_url) do |f|%>
+	  :url=>login_url, :method=>'post') do |f|%>
 	  <div class="user_name"><span>Email</span>
 	    <%=f.text_field(:name, :size=>20)%>
 	  </div>
@@ -12,5 +12,5 @@
 	<%else%>
 	  <span>Logged in as <b><%=session[:user].name%></b></span>
 	  <%=link_to 'logout',
-	    logout_url%>
+	    logout_url, :method=>'post'%>
 	<%end%>

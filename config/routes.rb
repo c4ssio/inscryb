@@ -33,17 +33,17 @@ ActionController::Routing::Routes.draw do |map|
   # You can have the root of your site routed with map.root -- just remember to delete public/index.html.
   map.root :controller => "things"
 
-  map.add_tag '/things/:id/add_tag/', :controller=>'things', :action=>'add_tag'
-  map.delete_tag '/things/:id/delete_tag/', :controller=>'things', :action=>'delete_tag'
-  map.clip_tag '/things/:id/clip_tag/', :controller=>'things', :action=>'clip_tag'
-  map.add_thing '/things/:id/add_thing/', :controller=>'things', :action=>'add_thing'
+  map.add_tag '/things/:id/add_tag/', :controller=>'things', :action=>'add_tag', :conditions => {:method => :post}
+  map.delete_tag '/things/:id/delete_tag/', :controller=>'things', :action=>'delete_tag', :conditions => {:method => :post}
+  map.clip_tag '/things/:id/clip_tag/', :controller=>'things', :action=>'clip_tag', :conditions => {:method => :post}
+  map.add_thing '/things/:id/add_thing/', :controller=>'things', :action=>'add_thing', :conditions => {:method => :post}
   map.retrieve '/things/:id', :controller=>'things', :action=>'retrieve', :conditions => {:method => :post}
-  map.rename_thing '/things/:id/rename_thing', :controller=>'things', :action=>'rename_thing'
+  map.rename_thing '/things/:id/rename_thing', :controller=>'things', :action=>'rename_thing', :conditions => {:method => :post}
 
   map.resources :things
 
-  map.login 'users/login', :controller=>'users', :action=>'login'
-  map.logout 'users/logout', :controller=>'users', :action=>'logout'
+  map.login 'users/login', :controller=>'users', :action=>'login', :conditions => {:method => :post}
+  map.logout 'users/logout', :controller=>'users', :action=>'logout', :conditions => {:method => :post}
 
   # See how all your routes lay out with "rake routes"
 

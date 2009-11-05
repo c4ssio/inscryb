@@ -48,7 +48,7 @@ a:hover {
 	color: #444;
 	border: 1px solid #88a;
 	background: #efe;
-	padding-left: 0px;
+	padding-left: 5px;
 	padding-right: 0px;
 	padding-top: 2px;
 	padding-bottom: 2px;
@@ -101,6 +101,8 @@ a:hover {
 	float: left;
 	margin-right: 6px;
 }
+
+.prompt_link {font-size:10pt;}
 
 p {
 	margin-top: 2px;
