@@ -1,4 +1,4 @@
-	<%if session[:user].id==1 then%>
+	<%if !session[:user] || session[:user].id==1 then%>
 	<%form_for(:user,
 	  :url=>login_url) do |f|%>
 	  <div class="user_name"><span>Email</span>
