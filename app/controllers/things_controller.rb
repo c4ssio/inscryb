@@ -9,7 +9,7 @@ class ThingsController < ApplicationController
 
   def search
 
-    @all_matches = Thing.search(session[:search],:without=>{:parent_id=>0}).collect{|th| th.id}
+    @all_matches = Thing.search(session[:search],:without=>{:parent_id=>0},:per_page=>1000).collect{|th| th.id}
     @member_matches = @thing.paths.select{|chpth|
       @all_matches.include?(chpth.target)}
     #length+2: +1 to get to actual thing's depth, +1 to get to member depth
