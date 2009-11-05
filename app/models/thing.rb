@@ -11,8 +11,8 @@ class Thing < ActiveRecord::Base
   define_index do
     #sphinx fields
     indexes :name
-    indexes :parent_id
-    indexes :user_id
+    has :parent_id
+    has :user_id
     indexes tags.key
     indexes tags.term
     indexes tags.blurb
