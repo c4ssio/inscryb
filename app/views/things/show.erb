@@ -19,7 +19,9 @@
       </p>
   </div>
 <%end-%>
+<div class="add_tag" id="add_tag_wrapper">
 <%=render :partial=>'add_tag' unless (session[:search] || session[:user].id==1)-%>
+</div>
 <div class="clip_members" id="clip_member_wrapper">
 <%=render :partial=>'clip_members' unless (session[:search] || session[:user].id==1)-%>
 </div>

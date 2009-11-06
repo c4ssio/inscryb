@@ -115,6 +115,7 @@ class ThingsController < ApplicationController
         page.replace_html 'member_and_tag_wrapper', :file=>'things/retrieve'
         page.replace_html 'clip_member_wrapper', :partial=>'clip_members'
         page.replace_html 'path_wrapper', :partial=>'path'
+        page.replace_html 'add_tag_wrapper', :partial=>'add_tag'
         session[:search] ? page.show('clear_search_button') : page.hide('clear_search_button')
       end
     end
