@@ -396,9 +396,7 @@ class Thing < ActiveRecord::Base
           elsif k=='type'
             #try to find another thing with the same type
             if @creator_id > 1
-              candidates = Tag.search(v.to_s,:condition=>{:key=>'type'}).select{|tg|
-                tg && tg.term == v.to_s
-              }.collect{|tg| tg.thing}
+              candidates = Tag.search(v.to_s,:condition=>{:key=>'type'}).collect{|tg| tg.thing}
               if !candidates.empty?
                 not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
                 most_complex = not_parents.sort_by{|c| c.paths.length}.last
