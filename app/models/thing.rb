@@ -355,17 +355,10 @@ class Thing < ActiveRecord::Base
           #create a new member beneath self
           if v.to_i.to_s != v.to_s or v == '0'
             #try to find another thing with the same name
-            candidates = (@creator_id >1 ? Thing.find_all_by_name(v.to_s) : nil)
-            if candidates && !candidates.empty?
-              not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
-              most_complex = not_parents.sort_by{|c| c.paths.length}.last
-              new_child = most_complex.copy_to(:dest=>self.id)
-            else
-              new_child = Thing.create(:user_id =>
-                  @creator_id )
-              new_child.at(:name=>v.to_s)
-              new_child.at(:in=>self.id)
-            end
+            new_child = Thing.create(:user_id =>
+                @creator_id )
+            new_child.at(:name=>v.to_s)
+            new_child.at(:in=>self.id)
           else
             # do the opposite for parent version
             #if user tries to add thing as parent of parent, fail:
@@ -380,9 +373,10 @@ class Thing < ActiveRecord::Base
           end
         elsif k=="name" 
           self.dt(k.to_sym) if self.name && self.name != v
-          self.name = v
+          self.name = v.to_s
           self.save!
-          #check if this name exists as a type somewhere; if so, add it as a type
+          #add name as a type
+          self.at(:type=>v.to_s)
         else
           #if key is neither parent, child, or name include it in the tags table
 
@@ -398,13 +392,13 @@ class Thing < ActiveRecord::Base
               self.at(:longitude=>geo_rml[0][8])
               self.at(:latitude=>geo_rml[0][9])
             end
-          #if key is type, find most complex non-parent type and add members and tags
+            #if key is type, find most complex non-parent type and add members and tags
           elsif k=='type'
             #try to find another thing with the same type
             if @creator_id > 1
-            candidates = Tag.search('type ' + v.to_s).select{|tg|
-              tg && tg.term == v.to_s
-            }.collect{|tg| tg.thing}
+              candidates = Tag.search('type ' + v.to_s).select{|tg|
+                tg && tg.term == v.to_s
+              }.collect{|tg| tg.thing}
               if !candidates.empty?
                 not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
                 most_complex = not_parents.sort_by{|c| c.paths.length}.last

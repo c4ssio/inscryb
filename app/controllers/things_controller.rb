@@ -122,9 +122,11 @@ class ThingsController < ApplicationController
         if (session[:search] || session[:user].id==1)
           page.hide('add_tag_wrapper')
           page.hide('clip_member_wrapper')
+          page[:thing_search].focus
         else
           page.show('add_tag_wrapper')
           page.show('clip_member_wrapper')
+          page[:thing_tag_value].focus
         end
       end
     end
