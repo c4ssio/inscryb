@@ -382,6 +382,7 @@ class Thing < ActiveRecord::Base
           self.dt(k.to_sym) if self.name && self.name != v
           self.name = v
           self.save!
+          #check if this name exists as a type somewhere; if so, add it as a type
         else
           #if key is neither parent, child, or name include it in the tags table
 
@@ -544,24 +545,6 @@ class Thing < ActiveRecord::Base
     end
     
   end
-  
-  def find_values(key=nil)
-    #returns a simple array of values for a given key
-    #easy way to determine if a thing has the desired tag, or to collect all tags of a certain type
-
-    if key.nil?
-      #returns simply all values sorted by order
-      return self.thing_tags.sort_by{|tht| tht.id}.collect{|tht| tht.tag.value}
-    end
-    
-    #returns an array of values for each tag the Thing has matching the key
-    return self.thing_tags.select{|tht|
-      tht.tag.key==key.to_s}.sort_by{|tht|
-      tht.id}.collect{|tht|
-      tht.tag.value}
-
-
-  end
 
   #these are all aliases for methods above, to allow for shorthand
 
@@ -573,24 +556,12 @@ class Thing < ActiveRecord::Base
     return add_tags(args)
   end
 
-  def fr(args={},s=20, d=1, p=self.id)
-    return find_related(args,s, d, p)
-  end
-
   def self.i(args)
     return self.import(args)
   end
 
-  def self.fbt(args)
-    return self.find_by_tags(args)
-  end
-
   def dt(args)
     return delete_tags(args)
-  end
-
-  def tg
-    return self.tags
   end
 
   def s_rels
@@ -600,20 +571,5 @@ class Thing < ActiveRecord::Base
   def d_rels
     return self.dest_relationships
   end
-
-  #this method is meant to be human readable, not used in other methods;
-  #used to show all tags for given thing
-  def lt #list_tags
-    #create hash for result
-    self.thing_tags.sort_by{|tht|
-      tht.id}.each do |tht|
-      off_at = tht.off_at.nil? ? '' : ' (off at ' + tht.off_at.to_s + ')'
-      puts  ':' + tht.tag.get_key_and_value.keys[0].to_s + ' => ' +
-        tht.tag.get_key_and_value.values[0].to_s +
-        off_at
-    end
-    return nil
-  end
-
 
 end

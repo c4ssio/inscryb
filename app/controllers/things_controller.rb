@@ -111,12 +111,21 @@ class ThingsController < ApplicationController
     @clip_members ||= ClipboardMember.find_all_by_user_id(session[:user].id)
 
     if request.xhr?
+      #update all page elements according to results
       render :update do |page|
         page.replace_html 'member_and_tag_wrapper', :file=>'things/retrieve'
         page.replace_html 'clip_member_wrapper', :partial=>'clip_members'
         page.replace_html 'path_wrapper', :partial=>'path'
         page.replace_html 'add_tag_wrapper', :partial=>'add_tag'
         session[:search] ? page.show('clear_search_button') : page.hide('clear_search_button')
+        #hide edit elements unless user is authenticated and not searching
+        if (session[:search] || session[:user].id==1)
+          page.hide('add_tag_wrapper')
+          page.hide('clip_member_wrapper')
+        else
+          page.show('add_tag_wrapper')
+          page.show('clip_member_wrapper')
+        end
       end
     end
     

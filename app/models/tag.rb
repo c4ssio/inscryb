@@ -3,6 +3,7 @@ class Tag < ActiveRecord::Base
 
   define_index do
     has :user_id
+    has :key
     indexes :key
     indexes :term
     indexes :blurb
@@ -27,5 +28,6 @@ class Tag < ActiveRecord::Base
      return self[v] if self[v]
     }
   end
+
 
 end
