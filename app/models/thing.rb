@@ -399,8 +399,8 @@ class Thing < ActiveRecord::Base
               candidates = Tag.search(v.to_s,:condition=>{:key=>'type'}).collect{|tg| tg.thing}
               if !candidates.empty?
                 not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
-                most_complex = not_parents.sort_by{|c| c.paths.length}.last
-                most_complex.copy_members_and_tags_to(:dest=>self.id)
+                least_complex = not_parents.sort_by{|c| c.paths.length}.last[0]
+                least_complex.copy_members_and_tags_to(:dest=>self.id)
               end
             end
             #delete self same tag to avoid dupes
