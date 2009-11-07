@@ -8,7 +8,6 @@ class ThingsController < ApplicationController
   end
 
   def search
-
     @all_matches = Thing.search(session[:search],:without=>{:parent_id=>0},:per_page=>1000).collect{|th| th.id}
     @member_matches = @thing.paths.select{|chpth|
       @all_matches.include?(chpth.target)}
@@ -111,6 +110,8 @@ class ThingsController < ApplicationController
 
     @clip_members ||= ClipboardMember.find_all_by_user_id(session[:user].id)
 
+    @hide_edits = (session[:search] || session[:user].id==1)
+
     if request.xhr?
       #update all page elements according to results
       render :update do |page|
@@ -120,7 +121,7 @@ class ThingsController < ApplicationController
         page.replace_html 'add_tag_wrapper', :partial=>'add_tag'
         session[:search] ? page.show('clear_search_button') : page.hide('clear_search_button')
         #hide edit elements unless user is authenticated and not searching
-        if (session[:search] || session[:user].id==1)
+        if @hide_edits
           page.hide('add_tag_wrapper')
           page.hide('clip_member_wrapper')
           page[:thing_search].focus

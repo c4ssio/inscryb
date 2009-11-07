@@ -3,7 +3,7 @@
   <table class="tag_list">
     <%@thing.tags.each do |tg|%>
       <tr class="tag_list">
-        <%unless (session[:search] || session[:user].id==1)%>
+        <%unless @hide_edits%>
         <td><%=link_to_remote('[d]',
           :url=>{:action=>'delete_tag',:tag_id=>tg.id, :method=>'post'})%>
         </td>

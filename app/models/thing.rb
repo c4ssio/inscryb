@@ -104,26 +104,13 @@ class Thing < ActiveRecord::Base
       dth.save!
     end
 
-    #generate paths for each
-    @src_paths.each do |sp|
-      dp = sp.clone
-      dp.target = @thing_map.select{|r| r[:src_id]==sp.target}[0][:dest_id]
-      if depth>0
-        Array(1..(depth-2)).reverse.each do |n|
-          dp.set_node(n,nil)
-        end
-        (depth..20).each do |n|
-          new_node = @thing_map.select{|r| r[:src_id]==dp.node(n)}[0]
-          dp.set_node(n, new_node[:dest_id]) unless new_node.nil?
-        end
-      end
-      dp.save!
-    end
-
     #take direct descendants and assign to dest thing
     @thing_map.select{|r| r[:src_id].th.parent==self }.each do |r|
       args[:dest].th.at(:has=>r[:dest_id])
     end
+
+    #generate paths for each
+    @thing_map.each{|r| r[:dest_id].th.create_path }
 
     #take tags and assign to dest thing
     self.tags.each do |stg|
@@ -398,7 +385,7 @@ class Thing < ActiveRecord::Base
           if k=='type'
             #try to find another thing with the same type
             if @creator_id > 1
-              candidates = Tag.search(v.to_s,:condition=>{:key=>'type'}).select{|tg|
+              candidates = Tag.find_all_by_key_and_term('type',"#{v}").select{|tg|
                 tg.thing_id.pth.node01}.collect{|tg|
                 tg.thing}
               if !candidates.empty?

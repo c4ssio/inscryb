@@ -4,6 +4,7 @@ class Tag < ActiveRecord::Base
   define_index do
     has :user_id
     has :key
+    has :term
     indexes :key
     indexes :term
     indexes :blurb

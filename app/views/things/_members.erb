@@ -2,14 +2,18 @@
 <div class="member_container">
   <div class="member_action_list">
     <table class="member">
-      <% @thing.members.each do |m|%>
-        <% if (!session[:search] && m.members) || (session[:search] && (m.matches.length>0 || m.is_match))
+      <% @thing.members.each do |m|
+         #variables to determine whether user is searching, browsing, etc
+        @is_browse = (!session[:search] && m.members)
+        @is_match = (session[:search] && (m.matches.length>0 || m.is_match))      
+
+        if @is_browse || @is_match
           #for searches, only include member matches or members with matches
           %>
           <tr class="member">
             <td class="member">
               <div class="member">
-                <%unless (session[:search] || session[:user].id==1)%>
+                <%unless @hide_edits%>
                   <%=link_to_remote('[d]',
                     :url=>{:action=>'delete_tag',:id=>@thing.id,:thing_id=>m.id},:method=>'post')%>
                   <%=link_to_remote('[x]',
@@ -17,20 +21,20 @@
                 <%end%>
                 <%=link_to(m.name,thing_url(:id=>m.id)) %>
                 <span>
-                  <%if (!session[:search] && m.members.length>0)%>
+                  <%if @is_browse && m.members.length>0%>
                     <%="(" + m.members.length.to_s +
                       " thing" + ("s" if m.members.length>1).to_s +
                       " )"%>
-                  <%elsif session[:search] && m.matches.length>0%>
+                  <%elsif @is_match%>
                     <%="(#{m.matches.length.to_s}):<br/>&nbsp;&nbsp;&nbsp;"%>
                     <%match_array=m.matches.group_by{|mm| mm.parent}.sort_by{|p,ch|
                       ch.length}.reverse
-                      match_array.each do |p,ch|%>
-                    <%=link_to(p.name,thing_url(:id=>p.id))-%>
-                    <%="("%>
-                    <%ch.each do |th|%>
-                    <%=link_to(th.name,thing_url(:id=>th.id)) + (th==ch.last ? " );" + (p==match_array.last[0] ? '' : "<br/>&nbsp;&nbsp;&nbsp;") : ',') -%>
-                    <%end%>
+                    match_array.each do |p,ch|%>
+                      <%=link_to(p.name,thing_url(:id=>p.id))-%>
+                      <%="("%>
+                      <%ch.each do |th|%>
+                        <%=link_to(th.name,thing_url(:id=>th.id)) + (th==ch.last ? " );" + (p==match_array.last[0] ? '' : "<br/>&nbsp;&nbsp;&nbsp;") : ',') -%>
+                      <%end%>
                     <%end%>
                   <%end%>
                 </span>
