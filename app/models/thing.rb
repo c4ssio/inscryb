@@ -377,23 +377,25 @@ class Thing < ActiveRecord::Base
           self.save!
           #add name as a type
           self.at(:type=>v.to_s, :creator_id => @creator_id)
+        elsif k=="address"
+            #delete previous address, lng, and lat
+            self.dt(:coded_addr);self.dt(:longitude);self.dt(:latitude)
+            #replacing '&' with 'and' for geocoding purposes
+            geo_rml=Geocoding.get( v.gsub('&',' and '))[0]
+            
+            #if latitude and longitude is found, use first result
+            if geo_rml
+              self.at(:longitude=>geo_rml[:longitude])
+              self.at(:latitude=>geo_rml[:latitude])
+              self.at(:coded_addr=>(geo_rml[:thoroughfare]+ ', ' +
+                    geo_rml[:administrative_area] + ', ' +
+                    geo_rml[:postal_code]) )
+            end
         else
           #if key is neither parent, child, or name include it in the tags table
 
           #if key is address get geocoding info
-          if k=="address"
-            #delete previous address, lng, and lat
-            self.dt(:address);self.dt(:longitude);self.dt(:latitude)
-            #replacing '&' with 'and' for geocoding purposes
-            geo_rml=Geocoding.get( v.gsub('&',' and ') )
-            
-            #if latitude and longitude is found
-            if geo_rml.length == 1
-              self.at(:longitude=>geo_rml[0][8])
-              self.at(:latitude=>geo_rml[0][9])
-            end
-            #if key is type, find most complex non-parent type and add members and tags
-          elsif k=='type'
+          if k=='type'
             #try to find another thing with the same type
             if @creator_id > 1
               candidates = Tag.search(v.to_s,:condition=>{:key=>'type'}).select{|tg|
