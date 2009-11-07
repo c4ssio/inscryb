@@ -396,10 +396,12 @@ class Thing < ActiveRecord::Base
           elsif k=='type'
             #try to find another thing with the same type
             if @creator_id > 1
-              candidates = Tag.search(v.to_s,:condition=>{:key=>'type'}).collect{|tg| tg.thing}
+              candidates = Tag.search(v.to_s,:condition=>{:key=>'type'}).select{|tg|
+                tg.thing_id.pth.node01}.collect{|tg|
+                tg.thing}
               if !candidates.empty?
                 not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
-                least_complex = not_parents.sort_by{|c| c.paths.length}.last[0]
+                least_complex = not_parents.sort_by{|c| c.paths.length + c.tags.length}[0]
                 least_complex.copy_members_and_tags_to(:dest=>self.id)
               end
             end
