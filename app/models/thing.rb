@@ -335,7 +335,7 @@ class Thing < ActiveRecord::Base
           if v.to_i.to_s != v.to_s or v == '0'
             new_parent = Thing.create(:user_id =>
                 @creator_id )
-            new_parent.at(:name=>v.to_s)
+            new_parent.at(:name=>v.to_s, :creator_id => @creator_id)
             new_parent.at(:in=>self.parent_id)
             self.at(:in=>new_parent.id)
           else
@@ -357,7 +357,7 @@ class Thing < ActiveRecord::Base
             #try to find another thing with the same name
             new_child = Thing.create(:user_id =>
                 @creator_id )
-            new_child.at(:name=>v.to_s)
+            new_child.at(:name=>v.to_s, :creator_id=>@creator_id)
             new_child.at(:in=>self.id)
           else
             # do the opposite for parent version
@@ -376,7 +376,7 @@ class Thing < ActiveRecord::Base
           self.name = v.to_s
           self.save!
           #add name as a type
-          self.at(:type=>v.to_s)
+          self.at(:type=>v.to_s, :creator_id => @creator_id)
         else
           #if key is neither parent, child, or name include it in the tags table
 
