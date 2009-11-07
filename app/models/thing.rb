@@ -373,7 +373,7 @@ class Thing < ActiveRecord::Base
           end
         elsif k=="name" 
           self.dt(k.to_sym) if self.name && self.name != v
-          self.name = v.to_s
+          self.name = v.to_s.gsub("'","\'")
           self.save!
           #add name as a type
           self.at(:type=>v.to_s, :creator_id => @creator_id)
@@ -519,13 +519,11 @@ class Thing < ActiveRecord::Base
             self.save!
           end
         else
-          #prepare value condition
-          value_cond = v.tag_value_type
-          value_cond += (value_cond=='number' ? "=#{v}" : "='#{v}'" )
 
           #find all tags meeting these conditions
           @curr_tags=Tag.find(:all,:conditions=>
-              "thing_id=#{self.id} and tags.key='#{k}' and " + value_cond)
+              {:thing_id=>self.id, :key=>k,
+              v.tag_value_type.to_sym=>v})
 
           #move each tag into the OldTag table
           @curr_tags.each do |t|

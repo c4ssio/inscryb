@@ -23,8 +23,9 @@ class ThingsController < ApplicationController
   end
 
   def rename_thing
+    #users can submit ampersands and other weird stuff...
     @_params[:id].to_i.th.at(:name=>@_params[:name])
-    render :nothing
+    retrieve
   end
 
   def add_tag
