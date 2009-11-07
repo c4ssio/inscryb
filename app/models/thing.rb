@@ -396,7 +396,7 @@ class Thing < ActiveRecord::Base
           elsif k=='type'
             #try to find another thing with the same type
             if @creator_id > 1
-              candidates = Tag.search('type ' + v.to_s).select{|tg|
+              candidates = Tag.search(v.to_s,:condition=>{:key=>'type'}).select{|tg|
                 tg && tg.term == v.to_s
               }.collect{|tg| tg.thing}
               if !candidates.empty?
