@@ -83,8 +83,7 @@ class Thing < ActiveRecord::Base
   def copy_members_and_tags_to(args)
     #args here is :dest, which specifies the thing id under which self should be copied
     self_pth = self.id.pth
-    depth=(self_pth ? self_pth.nodes.length + 1 : 0)
-
+    
     @thing_map = Array.new
     @src_paths = self.paths.select{|p| p.target != self.id}
 
@@ -108,9 +107,6 @@ class Thing < ActiveRecord::Base
     @thing_map.select{|r| r[:src_id].th.parent==self }.each do |r|
       args[:dest].th.at(:has=>r[:dest_id])
     end
-
-    #generate paths for each
-    @thing_map.each{|r| r[:dest_id].th.create_path }
 
     #take tags and assign to dest thing
     self.tags.each do |stg|
@@ -392,6 +388,7 @@ class Thing < ActiveRecord::Base
                 not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
                 least_complex = not_parents.sort_by{|c| c.paths.length + c.tags.length}[0]
                 least_complex.copy_members_and_tags_to(:dest=>self.id)
+                self.create_path
               end
             end
             #delete self same tag to avoid dupes
