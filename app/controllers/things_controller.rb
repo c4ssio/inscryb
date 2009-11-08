@@ -147,6 +147,8 @@ class ThingsController < ApplicationController
     #1 represents the ID for the inscryb root user
     session[:user]||=1.u
 
+    session[:search]=nil if @_params[:clear_search]
+
     if @_params[:thing]
       if @_params[:thing][:search]
         session[:search] = @_params[:thing][:search]

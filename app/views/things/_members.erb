@@ -33,7 +33,7 @@
                       <%=link_to(p.name,thing_url(:id=>p.id))-%>
                       <%="("%>
                       <%ch.each do |th|%>
-                        <%=link_to(th.name,thing_url(:id=>th.id)) + (th==ch.last ? " );" + (p==match_array.last[0] ? '' : "<br/>&nbsp;&nbsp;&nbsp;") : ',') -%>
+                        <%=link_to(th.name,thing_url(:id=>th.id,:clear_search=>true)) + (th==ch.last ? " );" + (p==match_array.last[0] ? '' : "<br/>&nbsp;&nbsp;&nbsp;") : ',') -%>
                       <%end%>
                     <%end%>
                   <%end%>
