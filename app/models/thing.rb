@@ -382,7 +382,7 @@ class Thing < ActiveRecord::Base
             #try to find another thing with the same type
             if @creator_id > 1
               candidates = Tag.find_all_by_key_and_term('type',"#{v}").select{|tg|
-                tg.thing_id.pth.node01}.collect{|tg|
+                tg.thing_id.pth.node01==1}.collect{|tg|
                 tg.thing}
               if !candidates.empty?
                 not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
