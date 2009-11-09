@@ -348,7 +348,6 @@ class Thing < ActiveRecord::Base
                 not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
                 least_complex = not_parents.sort_by{|c| c.paths.length + c.tags.length}[0]
                 least_complex.copy_members_and_tags_to(:dest=>self.id)
-                self.create_path
               end
             end
             #delete self same tag to avoid dupes
