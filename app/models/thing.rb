@@ -420,7 +420,7 @@ class Thing < ActiveRecord::Base
 
         if keys[:child].include?(k)
           if self.parent_id == v
-            OldTag.find_or_create_by_thing_id_and_key_and_number_and_created_at_and_user_id(
+            OldTag.find_or_create_by_thing_id_and_key_and_fixnum_and_created_at_and_user_id(
               self.id,"parent_id",self.parent_id,self.created_at,@creator_id)
             self.parent_id = nil
             self.save!
@@ -440,7 +440,7 @@ class Thing < ActiveRecord::Base
         elsif keys[:parent].include?(k) 
           if v.th.parent_id == self.id
             @th_oth = v.th
-            OldTag.find_or_create_by_thing_id_and_key_and_number_and_created_at_and_user_id(
+            OldTag.find_or_create_by_thing_id_and_key_and_fixnum_and_created_at_and_user_id(
               @th_oth.id,"parent_id",@th_oth.parent_id,self.created_at,@creator_id)
             @th_oth.parent_id = nil
             @th_oth.save!
