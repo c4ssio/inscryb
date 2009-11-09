@@ -5,7 +5,7 @@
       <% @thing.members.each do |m|
          #variables to determine whether user is searching, browsing, etc
         @is_browse = (!session[:search] && m.members)
-        @is_match = (session[:search] && (m.matches.length>0 || m.is_match))      
+        @is_match = (session[:search] && (m.matches.length>0 || m.is_match))
 
         if @is_browse || @is_match
           #for searches, only include member matches or members with matches

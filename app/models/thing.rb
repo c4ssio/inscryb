@@ -83,29 +83,36 @@ class Thing < ActiveRecord::Base
   def copy_members_and_tags_to(args)
     #args here is :dest, which specifies the thing id under which self should be copied
     self_pth = self.id.pth
-    
-    @thing_map = Array.new
-    @src_paths = self.paths.select{|p| p.target != self.id}
+    depth=(self_pth ? self_pth.nodes.length + 1 : 0)
 
-    #add all targets to map table
+    #first member of thing_map is self and dest
+    @thing_map = [{:src_id=>self.id,:dest_id=>args[:dest]}]
+    #all paths used here except self
+    @src_paths = self.paths.select{|p| p.target!=self.id}
+
     @src_paths.each do |sp|
+      #for each member of the source path that is deeper than self,
+      #check for a dest path in thing_map and copy any that have not been copied yet
+      Array(depth..20).each do |n|
+        sth_id = sp.node(n)
+        if sth_id && !@thing_map.collect{|r| r[:src_id]}.include?(sth_id)
+          sth = sth_id.th
+          dth = sth.copy; dth.parent_id = nil; dth.save!
+          @thing_map << {:src_id=>sth.id,:dest_id=>dth.id}
+          #assign parent as dth corresponding to parent
+          dth.at(:in=>@thing_map.select{|r|
+              r[:src_id]==sth.parent_id}[0][:dest_id])
+        end
+      end
+      #add target to map table
       sth = sp.target.th
       #strip parent from copy
-      dth = sth.copy; dth.parent_id = nil; dth.save!
+      dth = sth.copy; dth.save!
+      #assign parent as dth corresponding to parent
+      dth.at(:in=>@thing_map.select{|r|
+          r[:src_id]==sth.parent_id}[0][:dest_id])
       #add copy to map
       @thing_map << {:src_id=>sth.id,:dest_id=>dth.id}
-    end
-
-    #go through map and reassign parents for all but direct descendants
-    @thing_map.select{|r| r[:src_id].th.parent!=self }.each do |r|
-      dth = r[:dest_id].th
-      dth.parent_id = @thing_map.select{|rd| r[:src_id].th.parent_id==rd[:src_id]}[0][:dest_id]
-      dth.save!
-    end
-
-    #take direct descendants and assign to dest thing
-    @thing_map.select{|r| r[:src_id].th.parent==self }.each do |r|
-      args[:dest].th.at(:has=>r[:dest_id])
     end
 
     #take tags and assign to dest thing
@@ -114,53 +121,6 @@ class Thing < ActiveRecord::Base
       dtg.thing_id = args[:dest]
       dtg.save!
     end
-
-  end
-
-  def copy_to(args)
-    #args here is :dest, which specifies the thing id under which self should be copied
-    self_pth = self.id.pth
-    depth=(self_pth ? self_pth.nodes.length + 1 : 0)
-
-    @thing_map = Array.new
-    @src_paths = self.paths
-
-    #add all targets to map table
-    @src_paths.each do |sp|
-      sth = sp.target.th
-      #strip parent from copy
-      dth = sth.copy; dth.parent_id = nil; dth.save!
-      #add copy to map
-      @thing_map << {:src_id=>sth.id,:dest_id=>dth.id}
-    end
-
-    dself_id = @thing_map.select{|r| r[:src_id]==self.id}[0][:dest_id]
-
-    #go through map and reassign parents for all but main
-    @thing_map.select{|r| r[:dest_id]!=dself_id }.each do |r|
-      dth = r[:dest_id].th
-      dth.parent_id = @thing_map.select{|rd| r[:src_id].th.parent_id==rd[:src_id]}[0][:dest_id]
-      dth.save!
-    end
-
-    #generate paths for each
-    @src_paths.each do |sp|
-      dp = sp.clone
-      dp.target = @thing_map.select{|r| r[:src_id]==sp.target}[0][:dest_id]
-      if depth>0
-        Array(1..(depth-2)).reverse.each do |n|
-          dp.set_node(n,nil)
-        end
-        (depth..20).each do |n|
-          new_node = @thing_map.select{|r| r[:src_id]==dp.node(n)}[0]
-          dp.set_node(n, new_node[:dest_id]) unless new_node.nil?
-        end
-      end
-      dp.save!
-    end
-
-    #take top member corresponding to self on thing_map and add it to destination
-    dself_id.th.at(:in=>args[:dest])
 
   end
 
@@ -340,8 +300,8 @@ class Thing < ActiveRecord::Base
             #try to find another thing with the same name
             new_child = Thing.create(:user_id =>
                 @creator_id )
+            new_child.at(:in=>self.id,:creator_id=>@creator_id)
             new_child.at(:name=>v.to_s, :creator_id=>@creator_id)
-            new_child.at(:in=>self.id)
           else
             # do the opposite for parent version
             #if user tries to add thing as parent of parent, fail:
@@ -361,19 +321,19 @@ class Thing < ActiveRecord::Base
           #add name as a type
           self.at(:type=>v.to_s, :creator_id => @creator_id)
         elsif k=="address"
-            #delete previous address, lng, and lat
-            self.dt(:coded_addr);self.dt(:longitude);self.dt(:latitude)
-            #replacing '&' with 'and' for geocoding purposes
-            geo_rml=Geocoding.get( v.gsub('&',' and '))[0]
+          #delete previous address, lng, and lat
+          self.dt(:coded_addr);self.dt(:longitude);self.dt(:latitude)
+          #replacing '&' with 'and' for geocoding purposes
+          geo_rml=Geocoding.get( v.gsub('&',' and '))[0]
             
-            #if latitude and longitude is found, use first result
-            if geo_rml
-              self.at(:longitude=>geo_rml[:longitude])
-              self.at(:latitude=>geo_rml[:latitude])
-              self.at(:coded_addr=>(geo_rml[:thoroughfare]+ ', ' +
-                    geo_rml[:administrative_area] + ', ' +
-                    geo_rml[:postal_code]) )
-            end
+          #if latitude and longitude is found, use first result
+          if geo_rml
+            self.at(:longitude=>geo_rml[:longitude])
+            self.at(:latitude=>geo_rml[:latitude])
+            self.at(:coded_addr=>(geo_rml[:thoroughfare]+ ', ' +
+                  geo_rml[:administrative_area] + ', ' +
+                  geo_rml[:postal_code]) )
+          end
         else
           #if key is neither parent, child, or name include it in the tags table
 
