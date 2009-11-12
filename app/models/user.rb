@@ -1,5 +1,7 @@
 class User < ActiveRecord::Base
   has_many :clipboard_members
+  has_many :user_things
+  has_many :things, :through => :user_things
 
 # Checks login information
   def self.authenticate(name, password)

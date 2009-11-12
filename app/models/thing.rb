@@ -1,7 +1,6 @@
 class Thing < ActiveRecord::Base
   
-  has_many :src_relationships, :class_name=>'Relationship',:foreign_key=>'src_thing_id'
-  has_many :dest_relationships, :class_name=>'Relationship',:foreign_key=>'dest_thing_id'
+  has_one :user_thing
   has_many :tags
   has_many :old_tags
   belongs_to :parent, :class_name=>'Thing',:foreign_key=>'parent_id'
