@@ -268,7 +268,7 @@ class Thing < ActiveRecord::Base
       least_complex.copy_members_and_tags_by_dest_and_user(self.id,user_id)
     else
       #simply add type
-      self.at(:type=>v.to_s, :creator_id => @creator_id)
+      self.at(:type=>type, :creator_id => @creator_id)
     end
 
   end
