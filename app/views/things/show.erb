@@ -29,9 +29,9 @@
   <%=render :file=>'things/retrieve'%>
 </div>
 <%= observe_field :thing_search,
-  :frequency => 0.5,
-  :before=> "Element.show('spinner')",
-  :complete => "Element.hide('spinner')",
+  :frequency => 0.4,
+  #:before=> "Element.show('spinner')",
+  #:complete => "Element.hide('spinner')",
   :url => {:action=>'retrieve'},
   :with => "'thing[search]=' + encodeURIComponent(value)"%>
 <%if (session[:search] || session[:user]==1)%>

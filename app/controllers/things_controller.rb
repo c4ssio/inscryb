@@ -30,15 +30,16 @@ class ThingsController < ApplicationController
   def add_tag
     #this action is used to attach new tags/members to a thing
     identify unless @thing
-
     #check to determine whether tag already exists
-
     if @thing.tags.collect{|tg| {:key=>tg.key,:value=>tg.value } }.include?(
         {:key=>@_params[:thing][:key], :value=>@_params[:thing][:value]}) then
-      flash[:notice] = "tag already exists"
     else
-      @thing.at(@_params[:thing][:key].to_sym => @_params[:thing][:value], :creator_id=>session[:user].id)
-      flash[:notice] = "added #{@_params[:thing][:key].to_sym} => #{@_params[:thing][:value]}"
+      #if user enters type
+      if @_params[:thing][:key] == 'type'
+        @thing.add_type_by_user(@_params[:thing][:value],session[:user].id)
+      else
+        @thing.at(@_params[:thing][:key].to_sym => @_params[:thing][:value], :creator_id=>session[:user].id)
+      end
     end
 
     retrieve

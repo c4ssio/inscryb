@@ -79,13 +79,13 @@ class Thing < ActiveRecord::Base
 
   end
 
-  def copy_members_and_tags_to(args)
+  def copy_members_and_tags_by_dest_and_user(dest_id,user_id)
     #args here is :dest, which specifies the thing id under which self should be copied
     self_pth = self.id.pth
     depth=(self_pth ? self_pth.nodes.length + 1 : 0)
 
     #first member of thing_map is self and dest
-    @thing_map = [{:src_id=>self.id,:dest_id=>args[:dest]}]
+    @thing_map = [{:src_id=>self.id,:dest_id=>dest_id}]
     #all paths used here except self
     @src_paths = self.paths.select{|p| p.target!=self.id}
 
@@ -96,7 +96,7 @@ class Thing < ActiveRecord::Base
         sth_id = sp.node(n)
         if sth_id && !@thing_map.collect{|r| r[:src_id]}.include?(sth_id)
           sth = sth_id.th
-          dth = sth.copy; dth.parent_id = nil; dth.save!
+          dth = sth.copy_by_user(user_id); dth.parent_id = nil; dth.save!
           @thing_map << {:src_id=>sth.id,:dest_id=>dth.id}
           #assign parent as dth corresponding to parent
           dth.at(:in=>@thing_map.select{|r|
@@ -106,7 +106,7 @@ class Thing < ActiveRecord::Base
       #add target to map table
       sth = sp.target.th
       #strip parent from copy
-      dth = sth.copy; dth.save!
+      dth = sth.copy_by_user(user_id); dth.save!
       #assign parent as dth corresponding to parent
       dth.at(:in=>@thing_map.select{|r|
           r[:src_id]==sth.parent_id}[0][:dest_id])
@@ -117,24 +117,32 @@ class Thing < ActiveRecord::Base
     #take tags and assign to dest thing
     self.tags.each do |stg|
       dtg = stg.clone
-      dtg.thing_id = args[:dest]
+      dtg.thing_id = dest_id
       dtg.save!
     end
 
   end
 
-  def copy
+  def copy_by_user(user_id)
 
     dth = self.clone
     dth.save!
+    dth.add_creator(user_id)
 
     self.tags.each do |stg|
       dtg = stg.clone
       dtg.thing_id = dth.id
+      dtg.creator_id = user_id
       dtg.save!
     end
 
     return dth
+  end
+
+  def add_creator(user_id)
+    UserThing.find_or_create_by_user_id_and_thing_id_and_relationship_type_id(
+      user_id, self.id,RelationshipType.find_or_create_by_value('creator').id
+    )
   end
 
   def self.import(args)
@@ -248,9 +256,26 @@ class Thing < ActiveRecord::Base
     
     puts "No. of things created : #{thing_cnt}"
   end
+
+  def add_type_by_user(type,user_id)
+    candidates = Tag.find_all_by_key_and_term('type',type).select{|tg|
+      tg.thing_id.pth && tg.thing_id.pth.node01==1}.collect{|tg|
+      tg.thing}
+    if !candidates.empty?
+      #copy all tags and members from simplest candidate
+      not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
+      least_complex = not_parents.sort_by{|c| c.paths.length + c.tags.length}[0]
+      least_complex.copy_members_and_tags_by_dest_and_user(self.id,user_id)
+    else
+      #simply add type
+      self.at(:type=>v.to_s, :creator_id => @creator_id) unless self.tags
+    end
+
+  end
  
   def add_tags(args)
     #args is a hash, with values that may be either single values or arrays of values
+    #takes an optional creator argument that adds a creator row into user_things table
     keys = Hash.new
 
     keys[:child] = TermGroup.fbn('thing_key_child').members
@@ -258,7 +283,7 @@ class Thing < ActiveRecord::Base
     keys[:parent] = TermGroup.fbn('thing_key_parent').members
 
     #identifies user
-    @creator_id ||=(args[:creator_id] || 1)
+    @creator_id = args[:creator_id]
     args.delete(:creator_id) if args[:creator_id]
 
     args.each do |ksym,v|
@@ -274,11 +299,11 @@ class Thing < ActiveRecord::Base
         if keys[:child].include?(k)
           #if use supplies a string rather than an integer
           #create a new member beneath parent_id and put child under it
-          if v.to_i.to_s != v.to_s or v == '0'
-            new_parent = Thing.create(:user_id =>
-                @creator_id )
+          if !(v.to_i.to_s == v.to_s) or v == '0'
+            new_parent = Thing.create
+            #add creator relationship for thing
+            new_parent.add_creator(@creator_id) if @creator_id
             new_parent.at(:name=>v.to_s, :creator_id => @creator_id)
-            new_parent.at(:in=>self.parent_id)
             self.at(:in=>new_parent.id)
           else
             #if user tries to add thing as child of child, fail:
@@ -295,10 +320,10 @@ class Thing < ActiveRecord::Base
         elsif keys[:parent].include?(k)
           #if use supplies a string rather than an integer
           #create a new member beneath self
-          if v.to_i.to_s != v.to_s or v == '0'
+          if !(v.to_i.to_s == v.to_s) or v == '0'
             #try to find another thing with the same name
-            new_child = Thing.create(:user_id =>
-                @creator_id )
+            new_child = Thing.create
+            new_child.add_creator(@creator_id ) if @creator_id
             new_child.at(:in=>self.id,:creator_id=>@creator_id)
             new_child.at(:name=>v.to_s, :creator_id=>@creator_id)
           else
@@ -318,53 +343,34 @@ class Thing < ActiveRecord::Base
           self.name = v.to_s.gsub("'","\'")
           self.save!
           #add name as a type
-          self.at(:type=>v.to_s, :creator_id => @creator_id)
+          self.add_type_by_user(v.to_s,@creator_id)
         elsif k=="address"
           #delete previous address, lng, and lat
           self.dt(:coded_addr);self.dt(:longitude);self.dt(:latitude)
           #replacing '&' with 'and' for geocoding purposes
           geo_rml=Geocoding.get( v.gsub('&',' and '))[0]
-            
           #if latitude and longitude is found, use first result
           if geo_rml
-            self.at(:longitude=>geo_rml[:longitude])
-            self.at(:latitude=>geo_rml[:latitude])
+            self.at(:longitude=>geo_rml[:longitude], :creator_id => @creator_id)
+            self.at(:latitude=>geo_rml[:latitude], :creator_id => @creator_id)
             self.at(:coded_addr=>(geo_rml[:thoroughfare]+ ', ' +
                   geo_rml[:administrative_area] + ', ' +
-                  geo_rml[:postal_code]) )
+                  geo_rml[:postal_code]) , :creator_id => @creator_id)
           end
         else
           #if key is neither parent, child, or name include it in the tags table
-
-          #if key is address get geocoding info
-          if k=='type'
-            #try to find another thing with the same type
-            if @creator_id > 1
-              candidates = Tag.find_all_by_key_and_term('type',"#{v}").select{|tg|
-                tg.thing_id.pth && tg.thing_id.pth.node01==1}.collect{|tg|
-                tg.thing}
-              if !candidates.empty?
-                not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
-                least_complex = not_parents.sort_by{|c| c.paths.length + c.tags.length}[0]
-                least_complex.copy_members_and_tags_to(:dest=>self.id)
-              end
-            end
-            #delete self same tag to avoid dupes
-            self.dt(k.to_sym => v.to_s)
-          end
-
           #add simple text address to tags
           if v.tag_value_type=="term"
-            Tag.find_or_create_by_thing_id_and_key_and_term_and_user_id(
+            Tag.find_or_create_by_thing_id_and_key_and_term_and_creator_id(
               self.id,k,v,@creator_id)
           elsif v.tag_value_type=="blurb"
-            Tag.find_or_create_by_thing_id_and_key_and_blurb_and_user_id(
+            Tag.find_or_create_by_thing_id_and_key_and_blurb_and_creator_id(
               self.id,k,v,@creator_id)
           elsif v.tag_value_type=="date"
-            Tag.find_or_create_by_thing_id_and_key_and_date_and_user_id(
+            Tag.find_or_create_by_thing_id_and_key_and_date_and_creator_id(
               self.id,k,v,@creator_id)
           elsif v.tag_value_type=="number"
-            Tag.find_or_create_by_thing_id_and_key_and_number_and_user_id(
+            Tag.find_or_create_by_thing_id_and_key_and_number_and_creator_id(
               self.id,k,v,@creator_id)
           else
             raise "unknown tag_value type"
