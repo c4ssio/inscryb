@@ -3,9 +3,9 @@
 
 function submit_thing_link(id,context,mode,method) {
   //adds state parameters to hidden fields
-  $("thing_id").value=id;
-  $("thing_context").value=context;
-  $("thing_mode").value=mode;
+  $("#thing_id").val(id);
+  $("#thing_context").val(context);
+  $("#thing_mode").val(mode);
   //submit form
-  $("thing_form").submit();
+  $("#thing_form").submit();
 }
