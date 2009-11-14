@@ -4,7 +4,7 @@ class Thing < ActiveRecord::Base
   has_many :tags
   has_many :old_tags
   belongs_to :parent, :class_name=>'Thing',:foreign_key=>'parent_id'
-  has_many :members, :class_name=>'Thing',:foreign_key=>'parent_id'
+  has_many :children, :class_name=>'Thing',:foreign_key=>'parent_id'
 
   #for sphinx search engine
   define_index do
@@ -17,7 +17,7 @@ class Thing < ActiveRecord::Base
     indexes tags.blurb
   end
 
-  attr_accessor :matches
+  attr_accessor :child_matches
   attr_accessor :is_match
   
   def parent_nodes
@@ -79,18 +79,18 @@ class Thing < ActiveRecord::Base
 
   end
 
-  def copy_members_and_tags_by_dest_and_user(dest_id,user_id)
+  def copy_children_and_tags_by_dest_and_user(dest_id,user_id)
     #args here is :dest, which specifies the thing id under which self should be copied
     self_pth = self.id.pth
     depth=(self_pth ? self_pth.nodes.length + 1 : 0)
 
-    #first member of thing_map is self and dest
+    #first child of thing_map is self and dest
     @thing_map = [{:src_id=>self.id,:dest_id=>dest_id}]
     #all paths used here except self
     @src_paths = self.paths.select{|p| p.target!=self.id}
 
     @src_paths.each do |sp|
-      #for each member of the source path that is deeper than self,
+      #for each child of the source path that is deeper than self,
       #check for a dest path in thing_map and copy any that have not been copied yet
       Array(depth..20).each do |n|
         sth_id = sp.node(n)
@@ -262,10 +262,10 @@ class Thing < ActiveRecord::Base
       tg.thing_id.pth && tg.thing_id.pth.node01==1}.collect{|tg|
       tg.thing}
     if !candidates.empty?
-      #copy all tags and members from simplest candidate
+      #copy all tags and children from simplest candidate
       not_parents = candidates.select{|c| !self.parent_nodes.include?(c.id)}
       least_complex = not_parents.sort_by{|c| c.paths.length + c.tags.length}[0]
-      least_complex.copy_members_and_tags_by_dest_and_user(self.id,user_id)
+      least_complex.copy_children_and_tags_by_dest_and_user(self.id,user_id)
     else
       #simply add type
       self.at(:type=>type, :creator_id => @creator_id)
@@ -298,7 +298,7 @@ class Thing < ActiveRecord::Base
       va.each do |v|
         if keys[:child].include?(k)
           #if use supplies a string rather than an integer
-          #create a new member beneath parent_id and put child under it
+          #create a new child beneath parent_id
           if !(v.to_i.to_s == v.to_s) or v == '0'
             new_parent = Thing.create
             #add creator relationship for thing
@@ -319,7 +319,7 @@ class Thing < ActiveRecord::Base
           end
         elsif keys[:parent].include?(k)
           #if use supplies a string rather than an integer
-          #create a new member beneath self
+          #create a new child beneath self
           if !(v.to_i.to_s == v.to_s) or v == '0'
             #try to find another thing with the same name
             new_child = Thing.create

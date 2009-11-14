@@ -9,14 +9,14 @@ class ThingsController < ApplicationController
 
   def search
     @all_matches = Thing.search(session[:search],:without=>{:parent_id=>0},:per_page=>1000).collect{|th| th.id}
-    @member_matches = @thing.paths.select{|chpth|
+    @child_matches = @thing.paths.select{|chpth|
       @all_matches.include?(chpth.target)}
-    #length+2: +1 to get to actual thing's depth, +1 to get to member depth
-    member_depth_str = (@thing.parent_nodes.length+2).to_s.rjust(2,'0')
-    @thing.members.each do |m|
-      m.matches=@member_matches.select{|mm|
-        eval("mm.node#{member_depth_str}==#{m.id}")}.collect{|mm| mm.target.th }
-      m.is_match=true if @member_matches.collect{|mm| mm.target}.include?(m.id)
+    #length+2: +1 to get to actual thing's depth, +1 to get to child depth
+    child_depth_str = (@thing.parent_nodes.length+2).to_s.rjust(2,'0')
+    @thing.children.each do |m|
+      m.child_matches=@child_matches.select{|mm|
+        eval("mm.node#{child_depth_str}==#{m.id}")}.collect{|mm| mm.target.th }
+      m.is_match=true if @child_matches.collect{|mm| mm.target}.include?(m.id)
     end
 
   end
@@ -28,7 +28,7 @@ class ThingsController < ApplicationController
   end
 
   def add_tag
-    #this action is used to attach new tags/members to a thing
+    #this action is used to attach new tags/children to a thing
     identify unless @thing
     #check to determine whether tag already exists
     if @thing.tags.collect{|tg| {:key=>tg.key,:value=>tg.value } }.include?(
@@ -98,15 +98,15 @@ class ThingsController < ApplicationController
 
     #here we determine whether the user is searching or browsing, which is based on whether
     #a search argument was supplied in @_params above.  If they are searching, we get the
-    #member_matches for the supplied thing, which are the members that contain the search term
-    #if not, simply get every member and count the number of members beneath them to get the
+    #child_matches for the supplied thing, which are the members that contain the search term
+    #if not, simply get every child and count the number of members beneath them to get the
     # thing count displayed in the front end
     search if session[:search]
 
     #sort by number of members desc, so that the most matches/members
     #get sorted to the top
-    @thing.members=@thing.members.sort_by do |m|
-      (session[:search] ? m.matches.length : m.members.length)
+    @thing.children=@thing.children.sort_by do |m|
+      (session[:search] ? m.child_matches.length : m.children.length)
     end.reverse
 
     @clip_members ||= ClipboardMember.find_all_by_user_id(session[:user].id)
@@ -116,7 +116,7 @@ class ThingsController < ApplicationController
     if request.xhr?
       #update all page elements according to results
       render :update do |page|
-        page.replace_html 'member_and_tag_wrapper', :file=>'things/retrieve'
+        page.replace_html 'child_and_tag_wrapper', :file=>'things/retrieve'
         page.replace_html 'clip_member_wrapper', :partial=>'clip_members'
         page.replace_html 'path_wrapper', :partial=>'path'
         page.replace_html 'add_tag_wrapper', :partial=>'add_tag'

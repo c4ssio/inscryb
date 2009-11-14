@@ -25,7 +25,7 @@
 <div class="clip_members" id="clip_member_wrapper">
 <%=render :partial=>'clip_members' unless (session[:search] || session[:user].id==1)-%>
 </div>
-<div id="member_and_tag_wrapper">
+<div id="child_and_tag_wrapper">
   <%=render :file=>'things/retrieve'%>
 </div>
 <%= observe_field :thing_search,

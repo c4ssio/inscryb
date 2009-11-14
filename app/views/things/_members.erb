@@ -1,18 +1,18 @@
-<!--member layer-->
-<div class="member_container">
-  <div class="member_action_list">
-    <table class="member">
-      <% @thing.members.each do |m|
+<!--child layer-->
+<div class="child_container">
+  <div class="child_action_list">
+    <table class="child">
+      <% @thing.children.each do |m|
          #variables to determine whether user is searching, browsing, etc
-        @is_browse = (!session[:search] && m.members)
-        @is_match = (session[:search] && (m.matches.length>0 || m.is_match))
+        @is_browse = (!session[:search] && m.children)
+        @is_match = (session[:search] && (m.child_matches.length>0 || m.is_match))
 
         if @is_browse || @is_match
-          #for searches, only include member matches or members with matches
+          #for searches, only include child child_matches or children with child_matches
           %>
-          <tr class="member">
-            <td class="member">
-              <div class="member">
+          <tr class="child" id="<%="thing_#{m.id.to_s}"%>">
+            <td class="child">
+              <div class="child">
                 <%unless @hide_edits%>
                   <%=link_to_remote('[d]',
                     :url=>{:action=>'delete_tag',:id=>@thing.id,:thing_id=>m.id},:method=>'post')%>
@@ -21,13 +21,13 @@
                 <%end%>
                 <%=link_to(m.name,thing_url(:id=>m.id)) %>
                 <span>
-                  <%if @is_browse && m.members.length>0%>
-                    <%="(" + m.members.length.to_s +
-                      " thing" + ("s" if m.members.length>1).to_s +
+                  <%if @is_browse && m.children.length>0%>
+                    <%="(" + m.children.length.to_s +
+                      " thing" + ("s" if m.children.length>1).to_s +
                       " )"%>
                   <%elsif @is_match%>
-                    <%="(#{m.matches.length.to_s}):<br/>&nbsp;&nbsp;&nbsp;" if m.matches.length>0%>
-                    <%match_array=m.matches.group_by{|mm| mm.parent}.sort_by{|p,ch|
+                    <%="(#{m.child_matches.length.to_s}):<br/>&nbsp;&nbsp;&nbsp;" if m.child_matches.length>0%>
+                    <%match_array=m.child_matches.group_by{|mm| mm.parent}.sort_by{|p,ch|
                       ch.length}.reverse
                     match_array.each do |p,ch|%>
                       <%=link_to(p.name,thing_url(:id=>p.id))-%>
