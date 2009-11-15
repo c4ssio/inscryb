@@ -23,8 +23,30 @@ module ApplicationHelper
     #{remote_function :url => {:action => 'rename_thing', :id =>
 @thing.id}, :with => "'name=' + escape(name)", :method=>'post' }
   }
-    
-}
+  }
   end
 
+  def real_simple_history
+    javascript_tag(%Q{
+    <script type="text/javascript">
+    window.dhtmlHistory.create({
+      toJSON: function(o) {
+        return Object.toJSON(o);
+      },
+      fromJSON: function(s) {
+        return s.evalJSON();
+      }
+    });
+    
+    var pageListener = function(newLocation, historyData) {
+      eval(historyData);
+    };
+    
+    window.onload = function() {
+      dhtmlHistory.initialize();
+      dhtmlHistory.addListener(pageListener);
+    }
+    </script>
+    });
+  end
 end
