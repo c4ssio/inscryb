@@ -28,7 +28,6 @@ module ApplicationHelper
 
   def real_simple_history
     javascript_tag(%Q{
-    <script type="text/javascript">
     window.dhtmlHistory.create({
       toJSON: function(o) {
         return Object.toJSON(o);
@@ -46,7 +45,6 @@ module ApplicationHelper
       dhtmlHistory.initialize();
       dhtmlHistory.addListener(pageListener);
     }
-    </script>
     });
   end
 end
