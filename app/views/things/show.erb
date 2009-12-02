@@ -1,11 +1,14 @@
+<xml id="data_island_wrapper" style="display:none">
+  <%= render :partial=>'xml' %>
+</xml>
 <!--user layer-->
 <div class="user_wrapper" id="user_wrapper">
   <%=render :file=>'users/login'%>
 </div>
 <!-- path layer -->
-<div class="path">
-  <div class="target_group" id="path_wrapper">
-    <%=render :partial=>'path'%>
+<div class="thing_header">
+  <div class="target_group" id="thing_header_wrapper">
+    <%=render :partial=>'thing_header'%>
   </div>
 </div>
 <!--search layer-->
@@ -16,27 +19,26 @@
       <%=text_field(:thing,:search, :size=>10)-%>
       <%=button_to_function('Clr',clear_field_and_focus('thing_search'),
         :id=>'clear_search_button',:style=>('display:none' unless session[:search]))%>
-      </p>
+    </p>
   </div>
 <%end-%>
 <div class="add_tag" id="add_tag_wrapper">
-<%=render :partial=>'add_tag' unless (session[:search] || session[:user].id==1)-%>
+  <%=render :partial=>'add_tag' unless (session[:search] || session[:user].id==1)-%>
 </div>
 <div class="clip_members" id="clip_member_wrapper">
-<%=render :partial=>'clip_members' unless (session[:search] || session[:user].id==1)-%>
+  <%=render :partial=>'clip_members' unless (session[:search] || session[:user].id==1)-%>
 </div>
 <div id="child_and_tag_wrapper">
-  <%=render :file=>'things/retrieve'%>
+  <%=render :file=>'things/refresh'%>
 </div>
 <%= observe_field :thing_search,
   :frequency => 0.4,
   #:before=> "Element.show('spinner')",
-  #:complete => "Element.hide('spinner')",
-  :url => {:action=>'retrieve'},
+#:complete => "Element.hide('spinner')",
+:url => {:action=>'refresh'},
   :with => "'thing[search]=' + encodeURIComponent(value)"%>
 <%if (session[:search] || session[:user]==1)%>
   <%=set_focus_to_id('thing_search')%>
 <%else%>
   <%=set_focus_to_id('thing_key')%>
 <%end%>
-

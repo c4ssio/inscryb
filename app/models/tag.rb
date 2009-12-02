@@ -2,7 +2,7 @@ class Tag < ActiveRecord::Base
   belongs_to :thing
 
   define_index do
-    has :user_id
+    has :creator_id
     has :key
     has :term
     indexes :key

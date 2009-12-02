@@ -2,34 +2,69 @@ class ThingsController < ApplicationController
 
   def index
     
-    identify unless @thing
+    identify
 
     redirect_to(:action=>'show', :id=>@thing.id)
   end
 
   def search
-    @all_matches = Thing.search(session[:search],:without=>{:parent_id=>0},:per_page=>1000).collect{|th| th.id}
-    @child_matches = @thing.paths.select{|chpth|
-      @all_matches.include?(chpth.target)}
-    #length+2: +1 to get to actual thing's depth, +1 to get to child depth
-    child_depth_str = (@thing.parent_nodes.length+2).to_s.rjust(2,'0')
-    @thing.children.each do |m|
-      m.child_matches=@child_matches.select{|mm|
-        eval("mm.node#{child_depth_str}==#{m.id}")}.collect{|mm| mm.target.th }
-      m.is_match=true if @child_matches.collect{|mm| mm.target}.include?(m.id)
+    #populates thing and its parent with the matches
+    @thing.get_child_matches(session[:search])
+    @parent_thing.get_child_matches(session[:search]) if @parent_thing
+    #generate xml
+    @xml_paths.paths do
+      (@parent_thing || @thing).child_matches.each do |chm|
+        @xml_paths.path do
+          chm_target_th=chm.target.th
+          @xml_paths.target{
+            @xml_paths.thing_id(chm_target_th.id)
+            @xml_paths.name(chm_target_th.name)
+          }
+          (1..20).each do |n|
+            chm_node_th = (chm.node(n) ? chm.node(n).th : nil )
+            break unless chm_node_th
+            @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
+              @xml_paths.thing_id(chm_node_th.id)
+              @xml_paths.name(chm_node_th.name)
+            }
+          end
+        end
+      end
     end
+  end
 
+  def browse
+  #generate xml
+    @xml_paths.paths do
+      (@parent_thing || @thing).paths.each do |p|
+        @xml_paths.path do
+          p_target_th=p.target.th
+          @xml_paths.target{
+            @xml_paths.thing_id(p_target_th.id)
+            @xml_paths.name(p_target_th.name)
+          }
+          (1..20).each do |n|
+            p_node_th = (p.node(n) ? p.node(n).th : nil )
+            break unless p_node_th
+            @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
+              @xml_paths.thing_id(p_node_th.id)
+              @xml_paths.name(p_node_th.name)
+            }
+          end
+        end
+      end
+    end
   end
 
   def rename_thing
     #users can submit ampersands and other weird stuff...
     @_params[:id].to_i.th.at(:name=>@_params[:name])
-    retrieve
+    refresh
   end
 
   def add_tag
     #this action is used to attach new tags/children to a thing
-    identify unless @thing
+    identify
     #check to determine whether tag already exists
     if @thing.tags.collect{|tg| {:key=>tg.key,:value=>tg.value } }.include?(
         {:key=>@_params[:thing][:key], :value=>@_params[:thing][:value]}) then
@@ -38,17 +73,17 @@ class ThingsController < ApplicationController
       if @_params[:thing][:key] == 'type'
         @thing.add_type_by_user(@_params[:thing][:value],session[:user].id)
       else
-        @thing.at(@_params[:thing][:key].to_sym => @_params[:thing][:value], :creator_id=>session[:user].id)
+        @thing.at(@thing.key.to_sym => @thing.value, :creator_id=>session[:user].id)
       end
     end
 
-    retrieve
+    refresh
 
   end
 
   def clip_tag
 
-    identify unless @thing
+    identify
 
     if @_params[:op]=='cut'
       op_id = Operation.find_or_create_by_name(@_params[:op]).id
@@ -68,13 +103,13 @@ class ThingsController < ApplicationController
       @_params[:op]=nil
     end
 
-    retrieve
+    refresh
     
   end
 
   def delete_tag
 
-    identify unless @thing
+    identify
     thing_id = @_params[:thing_id]
     tag_id = @_params[:tag_id]
 
@@ -88,20 +123,20 @@ class ThingsController < ApplicationController
       ClipboardMember.find_all_by_thing_id(thing_id).each {|cm| cm.delete}
     end
   
-    retrieve
+    refresh
 
   end
 
-  def retrieve
+  def refresh
 
     identify
-
+    
     #here we determine whether the user is searching or browsing, which is based on whether
     #a search argument was supplied in @_params above.  If they are searching, we get the
     #child_matches for the supplied thing, which are the members that contain the search term
     #if not, simply get every child and count the number of members beneath them to get the
     # thing count displayed in the front end
-    search if session[:search]
+    session[:search] ? search : browse
 
     #sort by number of members desc, so that the most matches/members
     #get sorted to the top
@@ -112,14 +147,15 @@ class ThingsController < ApplicationController
     @clip_members ||= ClipboardMember.find_all_by_user_id(session[:user].id)
 
     @hide_edits = (session[:search] || session[:user].id==1)
-
+    
     if request.xhr?
       #update all page elements according to results
       render :update do |page|
-        page.replace_html 'child_and_tag_wrapper', :file=>'things/retrieve'
+        page.replace_html 'child_and_tag_wrapper', :file=>'things/refresh'
         page.replace_html 'clip_member_wrapper', :partial=>'clip_members'
-        page.replace_html 'path_wrapper', :partial=>'path'
+        page.replace_html 'thing_header_wrapper', :partial=>'thing_header'
         page.replace_html 'add_tag_wrapper', :partial=>'add_tag'
+        page.replace_html 'data_island_wrapper', :partial=>'xml'
         session[:search] ? page.show('clear_search_button') : page.hide('clear_search_button')
         #hide edit elements unless user is authenticated and not searching
         if @hide_edits
@@ -150,6 +186,8 @@ class ThingsController < ApplicationController
 
     session[:search]=nil if @_params[:clear_search]
 
+    unless @thing
+
     if @_params[:thing]
       if @_params[:thing][:search]
         session[:search] = @_params[:thing][:search]
@@ -157,6 +195,8 @@ class ThingsController < ApplicationController
       end
       #user has defined thing by submitting form (such as from drop-down)
       @thing = (@_params[:thing][:id] || @_params[:id]).to_i.th
+      @thing.key=@_params[:thing][:key]
+      @thing.value=@_params[:thing][:value]
     else
       #user is coming to this from front-end or URl
       @thing = (@_params[:id].to_i !=0 ? @_params[:id].to_i : 5).th
@@ -165,13 +205,28 @@ class ThingsController < ApplicationController
     @thing[:search]=session[:search]
 
     #set default values
-    @thing[:key]||='has'
-    @thing[:value]=nil
+    @thing.key||='has'
+    @thing.value||=nil
 
+    end
+
+    #set parent
+    @parent_thing = @thing.parent if @thing.parent
+
+    #XML Builders; need to put in nil to avoid inspect autotag
+    @xml_context = Builder::XmlMarkup.new;nil
+    @xml_paths = Builder::XmlMarkup.new;nil
+    @xml_tags = Builder::XmlMarkup.new;nil
+    @xml_clipboard = Builder::XmlMarkup.new;nil
+
+    @xml_context.context do
+      @xml_context.thing_id(@thing.id)
+      @xml_context.search(@thing[:search])
+    end
   end
 
   def show
-    retrieve
+    refresh
   end
 
 end

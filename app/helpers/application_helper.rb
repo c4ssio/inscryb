@@ -21,10 +21,18 @@ module ApplicationHelper
     if (name == null) return;
     $('#thing_name_wrapper').textContent=name;
     #{remote_function :url => {:action => 'rename_thing', :id =>
-@thing.id}, :with => "'name=' + escape(name)", :method=>'post' }
+      @thing.id}, :with => "'name=' + escape(name)", :method=>'post' }
   }
   }
   end
+
+  def go_to_child(id)
+    javascript_tag %Q{
+  #{remote_function :url => {:action => 'rename_thing', :id =>
+@thing.id}, :with => "'name=' + escape(name)", :method=>'post' }
+  }
+  end
+
 
   def real_simple_history
     javascript_tag(%Q{
@@ -47,4 +55,5 @@ module ApplicationHelper
     }
     });
   end
+
 end

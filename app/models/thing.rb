@@ -11,7 +11,6 @@ class Thing < ActiveRecord::Base
     #sphinx fields
     indexes :name
     has :parent_id
-    has :user_id
     indexes tags.key
     indexes tags.term
     indexes tags.blurb
@@ -19,7 +18,10 @@ class Thing < ActiveRecord::Base
 
   attr_accessor :child_matches
   attr_accessor :is_match
-  
+  attr_accessor :key
+  attr_accessor :value
+
+
   def parent_nodes
     path=[]
     parent_id = self.parent_id
@@ -144,6 +146,20 @@ class Thing < ActiveRecord::Base
       user_id, self.id,RelationshipType.find_or_create_by_value('creator').id
     )
   end
+
+  def get_child_matches(search_str)
+    @all_matches = Thing.search(search_str,:without=>{:parent_id=>0},:per_page=>1000).collect{|th| th.id}
+    @child_matches = self.paths.select{|chpth|
+      @all_matches.include?(chpth.target)}
+    #length+2: +1 to get to actual thing's depth, +1 to get to child depth
+    child_depth_str = (self.parent_nodes.length+2).to_s.rjust(2,'0')
+    self.children.each do |m|
+      m.child_matches=@child_matches.select{|mm|
+        eval("mm.node#{child_depth_str}==#{m.id}")}.collect{|mm| mm.target.th }
+      m.is_match=true if @child_matches.collect{|mm| mm.target}.include?(m.id)
+    end
+  end
+
 
   def self.import(args)
     #this is used for importing data files. Used by the add_starting_data migration
