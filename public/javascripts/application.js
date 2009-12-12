@@ -77,6 +77,10 @@ function browse(me)
     //replace table html with new contents
     $().find('table.child').html(new_html);
 
+
+    //now for the tags
+
+
 }
 
 function toggle_tags(me) {

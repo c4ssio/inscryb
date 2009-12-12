@@ -53,21 +53,21 @@ class ThingsController < ApplicationController
         end
       end
       #add tags for all paths
-      @xml_tags.things do
-        (child_paths + parent_paths).each do |p|
-          @xml_tags.thing do
-            @xml_tags.thing_id(p.target)
-            @xml_tags.tags do
-              p.target.th.tags do |tg|
-                @xml_tags.tag do
-                  @xml_tags.key(tg.key)
-                  @xml_tags.value(tg.value)
-                end
-              end
-            end
-          end
-        end
-      end
+#      @xml_tags.things do
+#        (child_matches + parent_paths).each do |p|
+#          @xml_tags.thing do
+#            @xml_tags.thing_id(p.target)
+#            @xml_tags.tags do
+#              p.target.th.tags do |tg|
+#                @xml_tags.tag do
+#                  @xml_tags.key(tg.key)
+#                  @xml_tags.value(tg.value)
+#                end
+#              end
+#            end
+#          end
+#        end
+#      end
     end
   end
 
