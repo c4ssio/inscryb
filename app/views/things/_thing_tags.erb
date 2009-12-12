@@ -4,7 +4,7 @@
     <%@thing.tags.each do |tg|%>
       <tr class="tag_list">
         <%unless @hide_edits%>
-        <td><%=link_to_remote('[d]',
+        <td><%#=link_to_remote('[d]',
           :url=>{:action=>'delete_tag',:tag_id=>tg.id, :method=>'post'})%>
         </td>
         <%end%>

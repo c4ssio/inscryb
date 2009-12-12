@@ -13,47 +13,4 @@ module ApplicationHelper
     return "this.form.submit();$('##{id}').val('');$('##{id}').focus();";
   end
 
-  def rename_prompt
-    javascript_tag %Q{
-  function x_rename_prompt()
-  {
-    var name = prompt('Enter New Name', '');
-    if (name == null) return;
-    $('#thing_name_wrapper').textContent=name;
-    #{remote_function :url => {:action => 'rename_thing', :id =>
-      @thing.id}, :with => "'name=' + escape(name)", :method=>'post' }
-  }
-  }
-  end
-
-  def go_to_child(id)
-    javascript_tag %Q{
-  #{remote_function :url => {:action => 'rename_thing', :id =>
-@thing.id}, :with => "'name=' + escape(name)", :method=>'post' }
-  }
-  end
-
-
-  def real_simple_history
-    javascript_tag(%Q{
-    window.dhtmlHistory.create({
-      toJSON: function(o) {
-        return Object.toJSON(o);
-      },
-      fromJSON: function(s) {
-        return s.evalJSON();
-      }
-    });
-    
-    var pageListener = function(newLocation, historyData) {
-      eval(historyData);
-    };
-    
-    window.onload = function() {
-      dhtmlHistory.initialize();
-      dhtmlHistory.addListener(pageListener);
-    }
-    });
-  end
-
 end

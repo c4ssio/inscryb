@@ -4,7 +4,8 @@ require_dependency 'password'
 
 class ApplicationController < ActionController::Base
   helper :all # include all helpers, all the time
-  protect_from_forgery # See ActionController::RequestForgeryProtection for details
+  #disabled protext from forgery to allow xml based posts without needing to reload the page
+  #protect_from_forgery # See ActionController::RequestForgeryProtection for details
 
   # Scrub sensitive parameters from your log
   # filter_parameter_logging :password

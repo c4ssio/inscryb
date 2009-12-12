@@ -1,10 +1,9 @@
-<%parent_nodes=@thing.parent_nodes.collect{|n| [n.th.name,n]}.reverse%>
+<p>
+  <span id="parent_thing_name_wrapper" class="prompt_link" thing_id="<%=@thing.parent.id%>">
+    <%=link_to_function @thing.parent.name,"browse(this)"%>
+  </span>
+</p>
+<p>
 <span id="thing_name_wrapper"><%=h @thing.name -%></span>
-<%=rename_prompt%>
-<span id="rename_link" class="prompt_link"><%=link_to_function 'rename','x_rename_prompt()' unless (session[:search] || session[:user].id==1)%></span>
-<%form_tag(things_url,{:method=>'get'}) do%>
-  <%=select('thing','id', parent_nodes,{},{:onchange=>"$(this).up('form').submit()"} ) if parent_nodes.last
-  #clicking on form items or clicking Go submits and loads item
-  %>
-  <%=submit_tag("Go") if parent_nodes.last%>
-<%end-%>
+<span id="rename_link" class="prompt_link"><%=link_to_function 'rename','rename_thing()' unless (session[:search] || session[:user].id==1)%></span>
+</p>

@@ -49,7 +49,5 @@ ActiveRecord::Base.logger.level = Logger::Severity::UNKNOWN
 require 'default_data'
 #this has methods that extend base Ruby or Rails classes
 require 'class_extensions'
-#this has methods that I copied off some website or forum, along with the source.
-require 'utils'
 #this allow pretty print with pp(expression)
 require 'pp'

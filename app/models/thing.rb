@@ -354,12 +354,15 @@ class Thing < ActiveRecord::Base
             #create paths for this new relationship
             @th_oth.create_path
           end
-        elsif k=="name" 
-          self.dt(k.to_sym) if self.name && self.name != v
+        elsif k=="name"
+          if self.name
+            self.dt(k.to_sym) if self.name != v
+          else
+            #add name as a type
+            self.add_type_by_user(v.to_s,@creator_id)
+          end
           self.name = v.to_s.gsub("'","\'")
           self.save!
-          #add name as a type
-          self.add_type_by_user(v.to_s,@creator_id)
         elsif k=="address"
           #delete previous address, lng, and lat
           self.dt(:coded_addr);self.dt(:longitude);self.dt(:latitude)

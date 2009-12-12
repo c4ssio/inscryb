@@ -3,41 +3,44 @@
   <div class="child_action_list">
     <table class="child">
       <% @thing.children.each do |m|
-         #variables to determine whether user is searching, browsing, etc
+        #variables to determine whether user is searching, browsing, etc
         @is_browse = (!session[:search] && m.children)
         @is_match = (session[:search] && (m.child_matches.length>0 || m.is_match))
 
         if @is_browse || @is_match
           #for searches, only include child child_matches or children with child_matches
           %>
-          <tr class="child" id="<%="thing_#{m.id.to_s}"%>">
-            <td class="child">
-              <div class="child">
+          <tr class="child">
+            <td class="child" thing_id="<%=m.id%>">
+              <div thing_id="<%=m.id%>">
                 <%unless @hide_edits%>
-                  <%=link_to_remote('[d]',
-                    :url=>{:action=>'delete_tag',:id=>@thing.id,:thing_id=>m.id},:method=>'post')%>
-                  <%=link_to_remote('[x]',
-                    :url=>{:action=>'clip_tag',:id=>@thing.id,:thing_id=>m.id, :op=>'cut'},:method=>'post')%>
+                  <%=link_to_function('[d]',"delete(this)")%>
+                  <%=link_to_function('[x]',"cut(this)")%>
                 <%end%>
-                <%=link_to(m.name,thing_url(:id=>m.id)) %>
-                <span>
-                  <%if @is_browse && m.children.length>0%>
-                    <%="(" + m.children.length.to_s +
-                      " thing" + ("s" if m.children.length>1).to_s +
-                      " )"%>
-                  <%elsif @is_match%>
-                    <%="(#{m.child_matches.length.to_s}):<br/>&nbsp;&nbsp;&nbsp;" if m.child_matches.length>0%>
-                    <%match_array=m.child_matches.group_by{|mm| mm.parent}.sort_by{|p,ch|
-                      ch.length}.reverse
-                    match_array.each do |p,ch|%>
-                      <%=link_to(p.name,thing_url(:id=>p.id))-%>
-                      <%="("%>
-                      <%ch.each do |th|%>
-                        <%=link_to(th.name,thing_url(:id=>th.id,:clear_search=>true)) + (th==ch.last ? " );" + (p==match_array.last[0] ? '' : "<br/>&nbsp;&nbsp;&nbsp;") : ',') -%>
-                      <%end%>
-                    <%end%>
-                  <%end%>
+                <span thing_id="<%=m.id%>" class="nav_link">
+                  <%=link_to_function m.name,"browse(this)"%>
                 </span>
+                <%if @is_browse && m.children.length>0%>
+                  <%="(" + m.children.length.to_s +
+                    " thing" + ("s" if m.children.length>1).to_s +
+                    " )"%>
+                <%elsif @is_match%>
+                  <%if m.child_matches.length>0%>
+                    <%="(#{m.child_matches.length.to_s}):"%>
+                    <span class="prompt_link">
+                      <%=link_to_function 'show',"toggle_matches(this)"%>
+                    </span>
+                  <%end%>
+                  <div thing_id="<%=m.id%>" style="display:none">
+                    <%m.child_matches.each do |chm|%>
+                      <div class="child_match" thing_id="<%=m.id%>">&nbsp;&nbsp;
+                        <span thing_id="<%=chm.id%>" class="nav_link">
+                          <%=link_to_function chm.name,"browse(this)"%>
+                        </span>
+                      </div>
+                    <%end%>
+                  </div>
+                <%end%>
               </div>
             </td>
           </tr>
