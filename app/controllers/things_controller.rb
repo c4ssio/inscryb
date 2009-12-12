@@ -30,7 +30,6 @@ class ThingsController < ApplicationController
             parent_paths << chm_node_pth unless (parent_paths.include?(chm_node_pth) || child_matches.include?(chm_node_pth) || chm_node_pth.nil?)
             @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
               @xml_paths.thing_id(chm_node_th.id)
-              #@xml_paths.name(chm_node_th.name)
             }
           end
         end
@@ -49,8 +48,23 @@ class ThingsController < ApplicationController
             break unless pp_node_th
             @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
               @xml_paths.thing_id(pp_node_th.id)
-              #@xml_paths.name(pp_node_th.name)
             }
+          end
+        end
+      end
+      #add tags for all paths
+      @xml_tags.things do
+        (child_paths + parent_paths).each do |p|
+          @xml_tags.thing do
+            @xml_tags.thing_id(p.target)
+            @xml_tags.tags do
+              p.target.th.tags do |tg|
+                @xml_tags.tag do
+                  @xml_tags.key(tg.key)
+                  @xml_tags.value(tg.value)
+                end
+              end
+            end
           end
         end
       end
@@ -72,8 +86,23 @@ class ThingsController < ApplicationController
             break unless p_node_th
             @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
               @xml_paths.thing_id(p_node_th.id)
-              #@xml_paths.name(p_node_th.name)
             }
+          end
+        end
+      end
+    end
+    #add tags
+    @xml_tags.things do
+      (@parent_thing || @thing).paths.each do |p|
+        @xml_tags.thing do
+          @xml_tags.thing_id(p.target)
+          @xml_tags.tags do
+            p.target.th.tags.each do |tg|
+              @xml_tags.tag do
+                @xml_tags.key(tg.key)
+                @xml_tags.value(tg.value)
+              end
+            end
           end
         end
       end

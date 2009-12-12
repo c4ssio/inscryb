@@ -70,7 +70,7 @@ a:hover {
 .search,
 .member_action_list,
 .new_tag_key_value,
-.tag_list_container {
+.tags_container {
 	width: 100%;
 	color: #444;
 	border-top: 2px solid #88a;
@@ -92,7 +92,7 @@ a:hover {
 .search:hover,
 .member_action_list:hover,
 .new_tag_key_value:hover,
-.tag_list_container:hover {
+.tags_container:hover {
 	background: #fafaff;
 }
 
@@ -102,7 +102,7 @@ a:hover {
 	margin-right: 6px;
 }
 
-.prompt_link {font-size:10pt;}
+.small_link {font-size:10pt;}
 
 p {
 	margin-top: 2px;

@@ -10,9 +10,9 @@
         if @is_browse || @is_match
           #for searches, only include child child_matches or children with child_matches
           %>
-          <tr class="child">
+          <tr class="child" thing_id="<%=m.id%>">
             <td class="child" thing_id="<%=m.id%>">
-              <div thing_id="<%=m.id%>">
+              <div class="child" thing_id="<%=m.id%>">
                 <%unless @hide_edits%>
                   <%=link_to_function('[d]',"delete(this)")%>
                   <%=link_to_function('[x]',"cut(this)")%>

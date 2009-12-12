@@ -1,9 +1,16 @@
 <p>
-  <span id="parent_thing_name_wrapper" class="prompt_link" thing_id="<%=@thing.parent.id%>">
-    <%=link_to_function @thing.parent.name,"browse(this)"%>
+  <span id="parent_thing_name_wrapper" thing_id="<%=@thing.parent.id%>">
+    <a onclick="browse(this)" class="small_link" href="#"><%=@thing.parent.name%></a>
   </span>
 </p>
 <p>
-<span id="thing_name_wrapper"><%=h @thing.name -%></span>
-<span id="rename_link" class="prompt_link"><%=link_to_function 'rename','rename_thing()' unless (session[:search] || session[:user].id==1)%></span>
+  <span id="thing_name_wrapper"><%=h @thing.name -%></span>
+  <span id="rename_link" <%='style="display:none"' if (session[:search] || session[:user].id==1) %>>
+    <a onclick="rename_thing()" class="small_link" href="#">rename</a>
+  </span>
+  <span id="show_tags_link" ><%='style="display:none"' if @thing.tags.length==0 %>
+    &nbsp;|&nbsp;
+    <a onclick="toggle_tags(this)" class="small_link" href="#">show tags</a>
+  </span>
 </p>
+

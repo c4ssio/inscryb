@@ -18,6 +18,21 @@ function browse(me)
     //update context to new thing
     $('#data_island_wrapper>context>thing_id').text(id);
 
+    //determine if thing has tags; if so, show tag option
+    var tags = $('#data_island_wrapper>things>thing').filter(function(){
+        if ($(this).find('thing_id').text()==id) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    )
+
+    if (tags.find('tags').length>0) {
+        //show tag panel
+        $('#panel_wrapper').show();
+    }
+
     //take the paths immediately below and group all paths beneath them
     var child_paths = get_child_paths(id);
 
@@ -61,6 +76,21 @@ function browse(me)
 
     //replace table html with new contents
     $().find('table.child').html(new_html);
+
+}
+
+function toggle_tags(me) {
+    // hides children, shows tags or vice versa
+
+    if ($(me).text()=='show tags') {
+        $(me).text('show members');
+        $('#child_and_tag_wrapper>div.child_container').hide();
+        $('#child_and_tag_wrapper>div.tags_container').show();
+    }else{
+        $(me).text('show tags');
+        $('#child_and_tag_wrapper>div.child_container').show();
+        $('#child_and_tag_wrapper>div.tags_container').hide();
+    }
 
 }
 
@@ -258,7 +288,21 @@ function add_tag(id,key,value) {
     return false;
 }
 
-function delete_tag(id,key,value) {
+function delete_tag(me) {
+
+    var key = '';
+    var value = '';
+    var id = get_context_id();
+    //determine if the tag in question is a child or a simple tag
+    if ($(me).parent().attr('class')=='child') {
+        //child
+        key = 'has';
+        value = $(me).parent().attr('thing_id');
+    } else {
+        //tag
+        key = $(me).parent().parent().find('td.tag_key').text();
+        value = $(me).parent().parent().find('td.tag_value').text();
+    }
     $.ajax({
         data: 'key=' + escape(key) + ';value=' + escape(value),
         dataType:'script',
@@ -266,6 +310,10 @@ function delete_tag(id,key,value) {
         url:'/things/' +id + '/delete_tag'
     });
     return false;
+}
+
+function get_context_id(){
+    return $('#data_island_wrapper>context>thing_id').text();
 }
 
 function cut(me) {
@@ -323,11 +371,11 @@ function clip(id,op,thing_id) {
 
 function search(me) {
 
-var id = $('#data_island_wrapper>context>thing_id').text();
+    var id = $('#data_island_wrapper>context>thing_id').text();
 
-var term = $(me).find('input').val();
+    var term = $(me).find('input').val();
 
-$.ajax({
+    $.ajax({
         data: 'search=' + term,
         dataType:'script',
         type:'post',
