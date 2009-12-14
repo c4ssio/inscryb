@@ -1,4 +1,4 @@
-<xml id="data_island_wrapper" style="display:none">
+<xml id="xml_wrapper" style="display:none">
   <%= render :partial=>'xml' %>
 </xml>
 <!--user layer-->
@@ -26,6 +26,9 @@
   <div class="target_group" id="thing_header_wrapper">
     <%=render :partial=>'thing_header'%>
   </div>
+</div>
+<div id="child_loading_wrapper" style="display:none">
+  <img src="images/spinner.gif">
 </div>
 <div id="child_and_tag_wrapper">
   <%=render :file=>'things/refresh'%>

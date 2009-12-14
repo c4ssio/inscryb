@@ -4,10 +4,11 @@
     <table class="child">
       <% @thing.children.each do |m|
         #variables to determine whether user is searching, browsing, etc
-        @is_browse = (!session[:search] && m.children)
-        @is_match = (session[:search] && (m.child_matches.length>0 || m.is_match))
+        @is_match =
+          (session[:search] && (m.child_matches.length>0 || m.is_match)) ||
+          (session[:search]=="" || session[:search].nil?)
 
-        if @is_browse || @is_match
+        if @is_match
           #for searches, only include child child_matches or children with child_matches
           %>
           <tr class="child" thing_id="<%=m.id%>">
@@ -20,11 +21,7 @@
                 <span thing_id="<%=m.id%>" class="nav_link">
                   <%=link_to_function m.name,"browse(this)"%>
                 </span>
-                <%if @is_browse && m.children.length>0%>
-                  <%="(" + m.children.length.to_s +
-                    " thing" + ("s" if m.children.length>1).to_s +
-                    " )"%>
-                <%elsif @is_match%>
+                <%if @is_match%>
                   <%if m.child_matches.length>0%>
                     <%="(#{m.child_matches.length.to_s}):"%>
                     <span class="prompt_link">

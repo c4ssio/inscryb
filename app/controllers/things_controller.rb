@@ -1,10 +1,16 @@
 class ThingsController < ApplicationController
 
   def index
+    search
     refresh
   end
 
   def search
+    identify
+
+    session[:search] = (self.params[:search] || session[:search])
+    session[:search] = nil if session[:search].to_s.strip==""
+
     #populates thing and its parent with the matches
     @thing.get_child_matches(session[:search])
     @parent_thing.get_child_matches(session[:search]) if @parent_thing
@@ -12,6 +18,8 @@ class ThingsController < ApplicationController
     #store parent paths for nodes in this
     parent_paths = Array.new
     #generate xml
+    @xml_paths = Builder::XmlMarkup.new;nil
+    @xml_tags = Builder::XmlMarkup.new;nil
     @xml_paths.paths do
       child_matches.each do |chm|
         @xml_paths.path do
@@ -19,8 +27,6 @@ class ThingsController < ApplicationController
           @xml_paths.target{
             @xml_paths.thing_id(chm_target_th.id)
             @xml_paths.name(chm_target_th.name)
-            #used for collecting children under parent
-            @xml_paths.parent_thing_id(chm_target_th.parent.id)
           }
           (1..20).each do |n|
             chm_node_th = (chm.node(n) ? chm.node(n).th : nil )
@@ -53,28 +59,37 @@ class ThingsController < ApplicationController
         end
       end
       #add tags for all paths
-#      @xml_tags.things do
-#        (child_matches + parent_paths).each do |p|
-#          @xml_tags.thing do
-#            @xml_tags.thing_id(p.target)
-#            @xml_tags.tags do
-#              p.target.th.tags do |tg|
-#                @xml_tags.tag do
-#                  @xml_tags.key(tg.key)
-#                  @xml_tags.value(tg.value)
-#                end
-#              end
-#            end
-#          end
-#        end
-#      end
+      @xml_tags.things do
+        (child_matches + parent_paths).each do |p|
+          @xml_tags.thing do
+            @xml_tags.thing_id(p.target)
+            @xml_tags.tags do
+              p.target.th.tags.each do |tg|
+                @xml_tags.tag do
+                  @xml_tags.key(tg.key)
+                  @xml_tags.value(tg.value)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    if request.xhr?
+      #user is updating the screen with results of latest search
+      refresh
     end
   end
 
   def browse
+    identify
+
+    #store parent paths for nodes in this
+    parent_paths = Array.new
+    child_paths = (@parent_thing || @thing).paths
     #generate xml
     @xml_paths.paths do
-      (@parent_thing || @thing).paths.each do |p|
+      child_paths.each do |p|
         @xml_paths.path do
           p_target_th=p.target.th
           @xml_paths.target{
@@ -84,8 +99,28 @@ class ThingsController < ApplicationController
           (1..20).each do |n|
             p_node_th = (p.node(n) ? p.node(n).th : nil )
             break unless p_node_th
+            #add node to list of parent paths
+            p_node_pth = p_node_th.id.pth
+            parent_paths << p_node_pth unless (parent_paths.include?(p_node_pth) || child_paths.include?(p_node_pth) || p_node_pth.nil?)
             @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
               @xml_paths.thing_id(p_node_th.id)
+            }
+          end
+        end
+      end
+      #add parent_paths
+      parent_paths.each do |pp|
+        @xml_paths.path do
+          pp_target_th=pp.target.th
+          @xml_paths.target{
+            @xml_paths.thing_id(pp_target_th.id)
+            @xml_paths.name(pp_target_th.name)
+          }
+          (1..20).each do |n|
+            pp_node_th = (pp.node(n) ? pp.node(n).th : nil )
+            break unless pp_node_th
+            @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
+              @xml_paths.thing_id(pp_node_th.id)
             }
           end
         end
@@ -93,7 +128,7 @@ class ThingsController < ApplicationController
     end
     #add tags
     @xml_tags.things do
-      (@parent_thing || @thing).paths.each do |p|
+      (child_paths + parent_paths).each do |p|
         @xml_tags.thing do
           @xml_tags.thing_id(p.target)
           @xml_tags.tags do
@@ -106,6 +141,11 @@ class ThingsController < ApplicationController
           end
         end
       end
+    end
+    if request.xhr?
+      #user is updating the screen with results of latest search
+      refresh
+      render :nothing
     end
   end
 
@@ -153,16 +193,9 @@ class ThingsController < ApplicationController
     render :nothing
   end
 
-  def refresh
-
-    identify
-    
-    #here we determine whether the user is searching or browsing, which is based on whether
-    #a search argument was supplied in @_params above.  If they are searching, we get the
-    #child_matches for the supplied thing, which are the members that contain the search term
-    #if not, simply get every child and count the number of members beneath them to get the
-    # thing count displayed in the front end
-    session[:search] ? search : browse
+  def refresh    
+    #xml builders
+    @xml_clipboard = Builder::XmlMarkup.new;nil
 
     #sort by number of members desc, so that the most matches/members
     #get sorted to the top
@@ -176,81 +209,56 @@ class ThingsController < ApplicationController
     
     if request.xhr?
       render :update do |page|
-        page.replace_html 'child_and_tag_wrapper', :file=>'things/refresh'
-        page.replace_html 'clip_member_wrapper', :partial=>'clip_members'
-        page.replace_html 'thing_header_wrapper', :partial=>'thing_header'
-        page.replace_html 'add_tag_wrapper', :partial=>'add_tag'
-        page.replace_html 'data_island_wrapper', :partial=>'xml'
-        #hide edit elements unless user is authenticated and not searching
-        if @hide_edits
-          page.hide('add_tag_wrapper')
-          page.hide('clip_member_wrapper')
-          page[:thing_search].focus
-        else
-          page.show('add_tag_wrapper')
-          page.show('clip_member_wrapper')
-          page[:thing_tag_value].focus
+        #these pieces change the display on the screen, which is the default;
+        #however, user has option of updating only the xml
+        unless (self.params[:display] && self.params[:display]=='false')
+          page.replace_html 'child_and_tag_wrapper', :file=>'things/refresh'
+          page.replace_html 'clip_member_wrapper', :partial=>'clip_members'
+          page.replace_html 'thing_header_wrapper', :partial=>'thing_header'
+          page.replace_html 'add_tag_wrapper', :partial=>'add_tag'
+          if @hide_edits
+            page.hide('add_tag_wrapper')
+            page.hide('clip_member_wrapper')
+            page[:thing_search].focus
+          else
+            page.show('add_tag_wrapper')
+            page.show('clip_member_wrapper')
+            page[:thing_tag_value].focus
+          end
         end
+        page.replace_html 'xml_wrapper', :partial=>'xml'
+        #hide edit elements unless user is authenticated and not searching`
       end
     end
     
   end
 
   def identify
-    #this action is designed to return data for a single model, in this case a single Thing.
-    #For this, it needs the ID for the Thing in question.
-    #the @_params variable: (the @ in front of it indicates it's an instance variable rather
-    #than a local variable, which preserves it in memory for display after the method ends)
-    #the @_params variable is supplied by the system when the user submits a request from the
-    #front-end.  It includes variables submitted in forms, query strings in the URL, etc.
+    #this action identifies the thing the user is currently viewing
+    #and stores it as a session variable
 
-    #5 represents the ID for San Francisco
-    #1 represents the ID for the inscryb root user
     session[:user]||=1.u
 
-    unless @thing
+    session[:id] = (self.params[:id] || session[:id] || 5).to_i
 
-      if @_params[:search]
-        session[:search] = @_params[:search]
-        session[:search]=nil if session[:search].to_s.strip==""
-      end
+    @thing = session[:id].th
 
-      if @_params[:thing]
-        #user has defined thing by submitting form (such as from drop-down)
-        @thing = (@_params[:thing][:id] || @_params[:id]).to_i.th
-        @thing.key=@_params[:thing][:key]
-        @thing.value=@_params[:thing][:value]
-      else
-        #user is coming to this from front-end or URl
-        @thing = (@_params[:id].to_i !=0 ? @_params[:id].to_i : 5).th
-      end
-      #to populate search box
-      @thing[:search]=session[:search]
-
-      #set default values
-      @thing.key||='has'
-      @thing.value||=nil
-
-    end
+    @thing[:search]=session[:search]
 
     #set parent
     @parent_thing = @thing.parent if @thing.parent
 
-    #XML Builders; need to put in nil to avoid inspect autotag
     @xml_context = Builder::XmlMarkup.new;nil
-    @xml_paths = Builder::XmlMarkup.new;nil
-    @xml_tags = Builder::XmlMarkup.new;nil
-    @xml_clipboard = Builder::XmlMarkup.new;nil
-
     @xml_context.context do
-      @xml_context.thing_id(@thing.id)
-      @xml_context.search(@thing[:search])
+      @xml_context.thing_id(session[:id])
+      @xml_context.search(session[:search])
       @xml_context.user_id(session[:user].id)
+      #mark top node
+      @xml_context.top_node_thing_id((@parent_thing || @thing).id)
     end
-  end
 
-  def show
-    refresh
-  end
+    #this identifies a simple polling request from user's navigation
+    render :nothing=>true if action_name == 'identify'
 
+  end
 end

@@ -148,9 +148,13 @@ class Thing < ActiveRecord::Base
   end
 
   def get_child_matches(search_str)
-    @all_matches = Thing.search(search_str,:without=>{:parent_id=>0},:per_page=>1000).collect{|th| th.id}
-    @child_matches = self.paths.select{|chpth|
-      @all_matches.include?(chpth.target)}
+    if (!search_str || search_str=="") then
+      @child_matches = self.paths
+    else
+      @all_matches = Thing.search(search_str,:without=>{:parent_id=>0},:per_page=>1000).collect{|th| th.id}
+      @child_matches = self.paths.select{|chpth|
+        @all_matches.include?(chpth.target)}
+    end
     #length+2: +1 to get to actual thing's depth, +1 to get to child depth
     child_depth_str = (self.parent_nodes.length+2).to_s.rjust(2,'0')
     self.children.each do |m|

@@ -33,12 +33,15 @@ ActionController::Routing::Routes.draw do |map|
   # You can have the root of your site routed with map.root -- just remember to delete public/index.html.
   map.root :controller => "things"
 
-  map.add_tag '/things/:id/add_tag/', :controller=>'things', :action=>'add_tag', :conditions => {:method => :post}
-  map.delete_tag '/things/:id/delete_tag/', :controller=>'things', :action=>'delete_tag', :conditions => {:method => :post}
-  map.clip '/things/:id/clip/', :controller=>'things', :action=>'clip', :conditions => {:method => :post}
-  map.add_thing '/things/:id/add_thing/', :controller=>'things', :action=>'add_thing', :conditions => {:method => :post}
-  map.refresh '/things/:id', :controller=>'things', :action=>'refresh', :conditions => {:method => :post}
+  map.add_tag '/things/:id/add_tag', :controller=>'things', :action=>'add_tag', :conditions => {:method => :post}
+  map.delete_tag '/things/:id/delete_tag', :controller=>'things', :action=>'delete_tag', :conditions => {:method => :post}
+  map.clip '/things/:id/clip', :controller=>'things', :action=>'clip', :conditions => {:method => :post}
+  map.add_thing '/things/:id/add_thing', :controller=>'things', :action=>'add_thing', :conditions => {:method => :post}
+  map.search 'things/:id/search', :controller=>'things', :action=>'search', :conditions => {:method => :get}
+  map.browse 'things/:id/browse', :controller=>'things', :action=>'browse', :conditions => {:method => :get}
+  map.refresh '/things/:id/refresh', :controller=>'things', :action=>'refresh', :conditions => {:method => :get}
   map.rename_thing '/things/:id/rename_thing', :controller=>'things', :action=>'rename_thing', :conditions => {:method => :post}
+  map.identify '/things/:id/identify', :controller=>'things', :action=>'identify', :conditions =>{:method => :post}
 
   map.resources :things
 

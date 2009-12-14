@@ -13,12 +13,12 @@ class UsersController < ApplicationController
         @login = params[:user][:name]
       end
     end
-    redirect_to :controller=>'things',:action=>'refresh'
+    redirect_to :controller=>'things',:action=>'index'
   end
 
   def logout
     session[:user] = 1.u
-    redirect_to :controller=>'things', :action=>'retrieve'
+    redirect_to :controller=>'things', :action=>'index'
   end
 
 

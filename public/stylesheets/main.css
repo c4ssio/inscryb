@@ -103,6 +103,7 @@ a:hover {
 }
 
 .small_link {font-size:10pt;}
+.small_link_disabled {font-size:10pt;color:gray}
 
 p {
 	margin-top: 2px;
