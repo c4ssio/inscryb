@@ -4,7 +4,7 @@
     <%@thing.tags.each do |tg|%>
       <tr class="tag">
         <td class="tag">
-          <%unless @hide_edits%>
+          <%unless session[:user].id==1%>
             <span><%=link_to_function('[d]','delete_tag(this)')%>
             </span>
           <%end%>

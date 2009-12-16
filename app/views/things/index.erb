@@ -15,26 +15,16 @@
     </p>
   </div>
 </form>
-<div class="add_tag" id="add_tag_wrapper">
-  <%=render :partial=>'add_tag' unless (session[:search] || session[:user].id==1)-%>
-</div>
-<div class="clip_members" id="clip_member_wrapper">
-  <%=render :partial=>'clip_members' unless (session[:search] || session[:user].id==1)-%>
-</div>
 <!-- path layer -->
-<div class="thing_header">
-  <div class="target_group" id="thing_header_wrapper">
-    <%=render :partial=>'thing_header'%>
-  </div>
+<div class="target_group" id="thing_header_wrapper">
+  <%=render :partial=>'thing_header'%>
 </div>
+  <div class="actions" id="actions_wrapper">
+    <%=render :partial=>'actions' unless (session[:user].id==1)-%>
+  </div>
 <div id="child_loading_wrapper" style="display:none">
   <img src="images/spinner.gif">
 </div>
 <div id="child_and_tag_wrapper">
   <%=render :file=>'things/refresh'%>
 </div>
-<%if (session[:search] || session[:user]==1)%>
-  <%=set_focus_to_id('thing_search')%>
-<%else%>
-  <%=set_focus_to_id('thing_key')%>
-<%end%>

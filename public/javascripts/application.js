@@ -47,12 +47,12 @@ function browse(me)
         var child_id = $(this).find('target>thing_id').text();
         var child_name = $(this).find('target>name').text();
 
-        //searching
+        var child_matches = get_child_matches(child_id);
+
         new_html+='<tr class="child">'+
         '<td class="child">'+
         get_thing_link(child_id,child_name);
-
-        var child_matches = get_child_matches(child_id);
+        
         if (child_matches.length>0) {
             new_html+=' (' + child_matches.length + '): ' +
             '<span class="prompt_link">' +
@@ -73,7 +73,11 @@ function browse(me)
     )
 
     //replace table html with new contents
-    $().find('table.child').html(new_html);
+    if (child_paths.length!=0) {
+        $().find('table.child').html(new_html);
+    } else {
+        $().find('table.child>tbody').remove();
+    }
 
     var top_node = $('#xml_wrapper>context>top_node_thing_id');
     var parent_thing = parent_thing_path.find('target>thing_id');
@@ -106,6 +110,53 @@ function toggle_spinner(el) {
 
 }
 
+function toggle_tags(me) {
+    // hides children, shows tags or vice versa
+    var tag_container = $('#child_and_tag_wrapper>div.tags_container');
+    var child_container = $('#child_and_tag_wrapper>div.child_container')
+    if ($(me).text()=='show tags') {
+        //if the tags are not yet loaded, load them up
+        if (tag_container.find('table>tbody').length==0) {
+            load_tags()
+        }
+        $(me).text('show members');
+        child_container.hide();
+        tag_container.show();
+    }else{
+        $(me).text('show tags');
+        tag_container.hide();
+        child_container.show();
+    }
+
+}
+
+function toggle_add_panel(me) {
+    if ($(me).text() == "Hide Panel") {
+        $(me).text("Add");
+    } else {
+        $(me).text("Hide Panel");
+    }
+    $('#add_panel').toggle()
+}
+
+function toggle_matches(me){
+    var child_div = $(me).parent().parent().find('div');
+    if ($(me).text()=='show') {
+        $(me).text('hide');
+        child_div.show();
+    } else {
+        $(me).text('show');
+        child_div.hide();
+    }
+}
+
+function toggle_child_spinner() {
+    //show spinner for entire child layer
+    $('#child_and_tag_wrapper').toggle();
+    $('#child_loading_wrapper').toggle();
+
+}
+
 function load_tags(){
     var tags = $('#xml_wrapper>things>thing').filter(function(){
         if ($(this).find('thing_id').text()==$('#xml_wrapper>context>thing_id').text()){
@@ -129,26 +180,6 @@ function load_tags(){
             '<span></span></span></td></tr>'
             )
     })
-}
-
-function toggle_tags(me) {
-    // hides children, shows tags or vice versa
-    var tag_container = $('#child_and_tag_wrapper>div.tags_container');
-    var child_container = $('#child_and_tag_wrapper>div.child_container')
-    if ($(me).text()=='show tags') {
-        //if the tags are not yet loaded, load them up
-        if (tag_container.find('table>tbody').length==0) {
-            load_tags()
-        }
-        $(me).text('show members');
-        child_container.hide();
-        tag_container.show();
-    }else{
-        $(me).text('show tags');
-        tag_container.hide();
-        child_container.show();
-    }
-
 }
 
 function get_child_row(id,name) {
@@ -257,7 +288,7 @@ function get_child_matches(id) {
         node_depth = depth;
     }
 
-    var child_paths = $('#xml_wrapper>paths>path>node' +
+    var child_matches = $('#xml_wrapper>paths>path>node' +
         node_depth + '>thing_id:contains(' +id + ')').filter(function(){
         if ($.trim($(this).text()) == id ) {
             //this returns all children than include parent anywhere in their path
@@ -274,7 +305,7 @@ function get_child_matches(id) {
         }
     });
 
-    return child_paths;
+    return child_matches;
 
 }
 
@@ -313,29 +344,6 @@ function refresh_with_spinner(id,el) {
         }
     });
     return false;
-}
-
-function get_thing_depth(id){
-
-    var path = get_thing_path(id);
-
-    var depth = 1;
-
-    var node_i = '';
-    
-    //determine new path's depth by counting the number of nodes
-    for (i=1;i<020;i++)
-    {
-        if ((i+'').length==1) {
-            node_i = '0' + i;
-        } else {
-            node_i = i;
-        }
-        depth += path.find('node' + node_i).length;
-    }
-
-    return depth;
-
 }
 
 function rename_thing() {
@@ -393,68 +401,31 @@ function delete_tag(me) {
     return false;
 }
 
-function get_context_id(){
-    return $('#xml_wrapper>context>thing_id').text();
-}
+function get_thing_depth(id){
 
-function cut(me) {
-    var thing_id = $(me).parent().parent().attr('thing_id');
-    var name = $(me).parent().find('span>a').text();
-    var id=$('#xml_wrapper>context>thing_id').text();
-    var clip_member_table = $('#clip_member_wrapper>table');
-    //check to ensure that this thing has not already been entered
-    var is_in = false;
-    clip_member_table.find('tr').each(function(){
-        if ($(this).attr('thing_id')==thing_id){
-            is_in = true;
+    var path = get_thing_path(id);
+
+    var depth = 1;
+
+    var node_i = '';
+
+    //determine new path's depth by counting the number of nodes
+    for (i=1;i<020;i++)
+    {
+        if ((i+'').length==1) {
+            node_i = '0' + i;
+        } else {
+            node_i = i;
         }
-    });
-    if (is_in == false){
-        clip_member_table.append(get_clip_row(thing_id,name));
-        clip(id,'cut',thing_id);
+        depth += path.find('node' + node_i).length;
     }
 
+    return depth;
+
 }
 
-function cancel(me) {
-    var thing_id = $(me).parent().parent().attr('thing_id');
-    var id=$('#xml_wrapper>context>thing_id').text();
-    var clip_member_table = $('#clip_member_wrapper>table');
-    //find the row with the thing and delete it
-    clip_member_table.find('tr').each(function(){
-        if ($(this).attr('thing_id')==thing_id){
-            $(this).remove();
-        }
-    });
-    //to server
-    clip(id,'cancel',thing_id);
-}
-
-function get_clip_row(id,name) {
-    return '<tr class="clip_members" thing_id="' +id + '">'+
-    '<td class="clip_members" thing_id="' +id + '">'+
-    '<div class="clip_members" thing_id="' +id + '">'+
-    '<a onclick="paste(this);return false;" href="#">Paste</a>'+
-    '<span><a onclick="browse(this);return false;" href="#"> ' +name + ' </a></span>'+
-    '<a onclick="cancel(this);return false;" href="#">Cancel</a>'+
-    '</div></td></tr>'
-}
-
-function clip(id,op,thing_id) {
-    $.ajax({
-        data: 'op=' + op + '&thing_id=' + thing_id,
-        dataType:'script',
-        type:'post',
-        url:'/things/' +id + '/clip'
-    });
-    return false;
-}
-
-function toggle_child_spinner() {
-    //show spinner for entire child layer
-    $('#child_and_tag_wrapper').toggle();
-    $('#child_loading_wrapper').toggle();
-
+function get_context_id(){
+    return $('#xml_wrapper>context>thing_id').text();
 }
 
 function search(me) {
@@ -476,14 +447,3 @@ function search(me) {
     }); return false;
 }
 
-
-function toggle_matches(me){
-    var child_div = $(me).parent().parent().find('div');
-    if ($(me).text()=='show') {
-        $(me).text('hide');
-        child_div.show();
-    } else {
-        $(me).text('show');
-        child_div.hide();
-    }
-}

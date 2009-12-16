@@ -6,6 +6,11 @@ class Thing < ActiveRecord::Base
   belongs_to :parent, :class_name=>'Thing',:foreign_key=>'parent_id'
   has_many :children, :class_name=>'Thing',:foreign_key=>'parent_id'
 
+  attr_accessor :child_matches
+  attr_accessor :is_match
+  attr_accessor :key
+  attr_accessor :value
+
   #for sphinx search engine
   define_index do
     #sphinx fields
@@ -15,11 +20,6 @@ class Thing < ActiveRecord::Base
     indexes tags.term
     indexes tags.blurb
   end
-
-  attr_accessor :child_matches
-  attr_accessor :is_match
-  attr_accessor :key
-  attr_accessor :value
 
 
   def parent_nodes

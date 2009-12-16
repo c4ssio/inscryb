@@ -69,7 +69,7 @@ a:hover {
 .path,
 .search,
 .member_action_list,
-.new_tag_key_value,
+.add_panel,
 .tags_container {
 	width: 100%;
 	color: #444;
@@ -102,7 +102,7 @@ a:hover {
 	margin-right: 6px;
 }
 
-.small_link {font-size:10pt;}
+.small_link {font-size:10pt;font-weight:bold}
 .small_link_disabled {font-size:10pt;color:gray}
 
 p {

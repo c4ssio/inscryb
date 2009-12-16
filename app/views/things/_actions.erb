@@ -1,0 +1,24 @@
+<span><a class="small_link" onclick="toggle_add_panel(this);return false;" href="#">Add</a></span>
+<span id="rename_link" <%='style="display:none"' if (session[:user].id==1) %>>
+  &nbsp;|&nbsp;
+  <a onclick="rename_thing()" class="small_link" href="#">Rename</a>
+  &nbsp;|&nbsp;
+</span>
+<span id="show_tags_link" <%='style="display:none"' if @thing.tags.length==0 %>>
+    <a onclick="toggle_tags(this)" class="small_link" href="#">show tags</a>
+  </span>
+<form onsubmit="add_tag(this);return false;" action="#">
+  <div id="add_panel" style="display:none">
+    <div class="child_label">Add Member</div>
+    <div class="tag_label" style="display:none">Add Tag</div>
+    <div class="new_tag_key" style="display:none"><span>Key</span>
+      <input id="thing_tag_key" size="10">
+    </div>
+    <div class="new_tag_value">
+      <span class="new_child_name">Name</span>
+      <span class="new_tag_value" style="display:none">Value</span>
+      <input id="thing_tag_value" size="10">
+    </div>
+    <%=submit_tag('Add Tag')%>
+  </div>
+</form>

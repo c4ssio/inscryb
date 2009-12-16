@@ -14,9 +14,9 @@
           <tr class="child" thing_id="<%=m.id%>">
             <td class="child" thing_id="<%=m.id%>">
               <div class="child" thing_id="<%=m.id%>">
-                <%unless @hide_edits%>
+                <%unless session[:user].id==1%>
                   <%=link_to_function('[d]',"delete(this)")%>
-                  <%=link_to_function('[x]',"cut(this)")%>
+                  <%#=link_to_function('[x]',"cut(this)")%>
                 <%end%>
                 <span thing_id="<%=m.id%>" class="nav_link">
                   <%=link_to_function m.name,"browse(this)"%>
@@ -31,6 +31,8 @@
                   <div thing_id="<%=m.id%>" style="display:none">
                     <%m.child_matches.each do |chm|%>
                       <div class="child_match" thing_id="<%=m.id%>">&nbsp;&nbsp;
+                        <%=link_to_function('[d]',"delete(this)")%>
+                        <%#=link_to_function('[x]',"cut(this)")%>
                         <span thing_id="<%=chm.id%>" class="nav_link">
                           <%=link_to_function chm.name,"browse(this)"%>
                         </span>

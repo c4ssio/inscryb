@@ -40,6 +40,10 @@ class ThingsController < ApplicationController
           end
         end
       end
+      #if there were no matches, populate parent paths with parent_nodes.
+      parent_paths = (@thing.parent_nodes + [@thing.id]
+      ).collect{|n| n.pth} if parent_paths.empty?
+
       #add parent_paths with non-match tag
       parent_paths.each do |pp|
         @xml_paths.path do
@@ -203,28 +207,13 @@ class ThingsController < ApplicationController
       (session[:search] ? m.child_matches.length : m.children.length)
     end.reverse
 
-    @clip_members ||= ClipboardMember.find_all_by_user_id(session[:user].id)
-
-    @hide_edits = (session[:search] || session[:user].id==1)
-    
     if request.xhr?
       render :update do |page|
         #these pieces change the display on the screen, which is the default;
         #however, user has option of updating only the xml
         unless (self.params[:display] && self.params[:display]=='false')
           page.replace_html 'child_and_tag_wrapper', :file=>'things/refresh'
-          page.replace_html 'clip_member_wrapper', :partial=>'clip_members'
           page.replace_html 'thing_header_wrapper', :partial=>'thing_header'
-          page.replace_html 'add_tag_wrapper', :partial=>'add_tag'
-          if @hide_edits
-            page.hide('add_tag_wrapper')
-            page.hide('clip_member_wrapper')
-            page[:thing_search].focus
-          else
-            page.show('add_tag_wrapper')
-            page.show('clip_member_wrapper')
-            page[:thing_tag_value].focus
-          end
         end
         page.replace_html 'xml_wrapper', :partial=>'xml'
         #hide edit elements unless user is authenticated and not searching`
