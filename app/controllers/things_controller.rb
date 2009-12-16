@@ -85,74 +85,6 @@ class ThingsController < ApplicationController
     end
   end
 
-  def browse
-    identify
-
-    #store parent paths for nodes in this
-    parent_paths = Array.new
-    child_paths = (@parent_thing || @thing).paths
-    #generate xml
-    @xml_paths.paths do
-      child_paths.each do |p|
-        @xml_paths.path do
-          p_target_th=p.target.th
-          @xml_paths.target{
-            @xml_paths.thing_id(p_target_th.id)
-            @xml_paths.name(p_target_th.name)
-          }
-          (1..20).each do |n|
-            p_node_th = (p.node(n) ? p.node(n).th : nil )
-            break unless p_node_th
-            #add node to list of parent paths
-            p_node_pth = p_node_th.id.pth
-            parent_paths << p_node_pth unless (parent_paths.include?(p_node_pth) || child_paths.include?(p_node_pth) || p_node_pth.nil?)
-            @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
-              @xml_paths.thing_id(p_node_th.id)
-            }
-          end
-        end
-      end
-      #add parent_paths
-      parent_paths.each do |pp|
-        @xml_paths.path do
-          pp_target_th=pp.target.th
-          @xml_paths.target{
-            @xml_paths.thing_id(pp_target_th.id)
-            @xml_paths.name(pp_target_th.name)
-          }
-          (1..20).each do |n|
-            pp_node_th = (pp.node(n) ? pp.node(n).th : nil )
-            break unless pp_node_th
-            @xml_paths.tag!("node"+n.to_s.rjust(2,'0')){
-              @xml_paths.thing_id(pp_node_th.id)
-            }
-          end
-        end
-      end
-    end
-    #add tags
-    @xml_tags.things do
-      (child_paths + parent_paths).each do |p|
-        @xml_tags.thing do
-          @xml_tags.thing_id(p.target)
-          @xml_tags.tags do
-            p.target.th.tags.each do |tg|
-              @xml_tags.tag do
-                @xml_tags.key(tg.key)
-                @xml_tags.value(tg.value)
-              end
-            end
-          end
-        end
-      end
-    end
-    if request.xhr?
-      #user is updating the screen with results of latest search
-      refresh
-      render :nothing
-    end
-  end
-
   def add_tag
     #check to determine whether tag already exists
     if @thing.tags.collect{|tg| {:key=>tg.key,:value=>tg.value } }.include?(
@@ -250,4 +182,5 @@ class ThingsController < ApplicationController
     render :nothing=>true if action_name == 'identify'
 
   end
+
 end
