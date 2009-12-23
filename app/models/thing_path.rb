@@ -1,4 +1,5 @@
 class ThingPath < ActiveRecord::Base
+
   def nodes
     result_array = []
     (1..20).collect{|i| i.to_s.rjust(2,'0')}.collect do |i|

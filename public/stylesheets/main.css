@@ -26,6 +26,18 @@ select:focus {
 	background: #fff;
 }
 
+.page_header {
+	background: #008000;
+}
+
+.page_header_text {
+        text-align: center;
+        vertical-align: middle;
+        height: 30px;
+        font-size: 120%;
+        font-weight:bold;
+        color: #FFF;
+}
 
 .target_group {
 	font-weight: bold;
