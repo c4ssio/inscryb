@@ -1,11 +1,11 @@
- <div id="parent_thing_name_wrapper" thing_id="<%=@thing.parent.id if @thing.parent%>">
+<div id="parent_thing_name_wrapper" thing_id="<%=@thing.parent.id if @thing.parent%>">
   <!--load -->
   <span class="small_link_disabled" style="display:none">
     <%=@thing.parent.name if @thing.parent%>
   </span>
   <a onclick="render_thing(this)" class="small_link" href="#"><%=@thing.parent.name if @thing.parent%></a>
-  <img src="images\small_spinner.gif" style="display:none">
- </div>
+  <img src="images/small_spinner.gif" style="display:none">
+</div>
 <div id="thing_name_wrapper">
   <span><%=h @thing.name -%></span></div>
 
