@@ -540,12 +540,12 @@ function identify(id) {
 
 function rename_thing() {
     var name = prompt('Enter New Name', '');
-    if (name == null) return;
-    var id=$('#xml_wrapper>context>thing_id').text();
+    if (name == null) return false;
+    var id=curr_thing().id;
     //rename display on screen
     $('#thing_name_wrapper').text(name);
     //rename target containing thing
-    $('target>thing_id:contains(' +id + ')').filter(function(){
+    $('#xml_wrapper').find('paths>path>target>thing_id').filter(function(){
         if ($.trim($(this).text()) == id ) {
             return true;
         }else{
