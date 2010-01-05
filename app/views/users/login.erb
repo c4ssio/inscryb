@@ -1,16 +1,17 @@
-	<%if !session[:user] || session[:user].id==1 then%>
-	<%form_for(:user,
-	  :url=>login_url, :method=>'post') do |f|%>
-	  <div class="user_name"><span>Email</span>
-	    <%=f.text_field(:name, :size=>20)%>
-	  </div>
-	  <div class="password"><span>Password</span>
-	    <%=f.password_field(:password_hash, :size=>10)%>
-	  </div>
-	    <%=submit_tag('Login/Signup')%>
-	<%end -%>
-	<%else%>
-	  <span>Logged in as <b><%=session[:user].name%></b></span>
-	  <%=link_to 'logout',
-	    logout_url, :method=>'post'%>
-	<%end%>
+<%if !session[:user] || session[:user].id==1 then%>
+  <%form_for(:user,
+    :url=>login_url, :method=>'post') do |f|%>
+    <div class="user_name"><span>E</span>
+      <%=f.text_field(:name, :size=>10)%>
+    </div>
+    <div class="password"><span>P</span>
+      <%=f.password_field(:password_hash, :size=>10)%>
+    </div>
+    <%=submit_tag('Login/Signup',:class=>'login_button')%>
+  <%end -%>
+<%else%>
+  <%=button_to 'logout',
+    logout_url, :method=>'post', :class=>'logout_button'%>
+  <span>logged in as <b><%=session[:user].name%></b></span>
+
+<%end%>

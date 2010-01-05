@@ -50,7 +50,11 @@ class ThingsController < ApplicationController
       parent_paths = (@thing.parent_nodes
       ).collect{|n| n.pth} if child_matches.empty?
 
+      #make sure self and parent are added to the paths for xml
       parent_paths << @thing.id.pth unless (parent_paths + child_matches).include?(@thing.id.pth)
+      if @parent_thing
+        parent_paths << @parent_thing.id.pth unless (parent_paths + child_matches).include?(@parent_thing.id.pth)
+      end
 
       #add parent_paths with non-match tag
       parent_paths.each do |pp|
@@ -89,7 +93,9 @@ class ThingsController < ApplicationController
     end
     if request.xhr?
       #user is updating the screen with results of latest search
-      refresh
+      render :update do |page|
+        page.replace_html 'xml_wrapper', :file=>'things/xml'
+      end
     end
   end
 

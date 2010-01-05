@@ -3,14 +3,18 @@
 
 //create namespaces
 
-//this represents the html on the page.  all of its methods go off the current xml
+//this represents the html on the page, or the panel.  all of its methods go off the current xml
 var panel = function (){
 
     this.action_menu = $('#actions_wrapper');
 
+    this.child_table = $('#child_and_tag_wrapper').find('table.child');
+
+    this.tags_table = $('#child_and_tag_wrapper').find('table.tags');
+
     this.thing_name_label = function(){
         return $('#thing_name_wrapper').find('span')
-    };
+    }
     
     this.parent_thing_name_link = function(){
         return $('#parent_thing_name_wrapper').find('a');
@@ -19,8 +23,10 @@ var panel = function (){
     this.parent_thing_name_label = function(){
         return $('#parent_thing_name_wrapper').find('span');
     }
-    
-    this.tags_table = $('#child_and_tag_wrapper').find('table.tags');
+
+    this.parent_thing_name_spinner = function(){
+        return $('#parent_thing_name_wrapper').find('img');
+    }
 
     this.show_tag_rows = function(){
         $('#child_and_tag_wrapper').find('table.child').hide();
@@ -32,7 +38,7 @@ var panel = function (){
     }
 
     this.add_tag_row = function(key,value){
-            $('#child_and_tag_wrapper').find('table.tags').append(
+        $('#child_and_tag_wrapper').find('table.tags').append(
             '<tr class="tag">'+
             '<td class="tag">'+
             '<span class="tag_key">'+
@@ -43,8 +49,6 @@ var panel = function (){
             '<span></span></span></td></tr>'
             )
     }
-
-    this.child_table = $('#child_and_tag_wrapper').find('table.child');
 
     this.show_match_rows = function(){
         $('#child_and_tag_wrapper').find('table.tags').hide();
@@ -84,12 +88,52 @@ var panel = function (){
         $('#child_and_tag_wrapper').find('table.child').append(new_html)
     }
 
-    this.refresh = function(){
+    //this renders the current thing on the panel
+    this.render = function() {
+        //register to server that user is navigating here
+        identify(curr_thing().id);
+
+        //update context to new thing
+        $('#xml_wrapper').find('context>thing_id').text(curr_thing().id);
+
         //update header text
         this.thing_name_label().text(curr_thing().name);
         this.parent_thing_name_link().text(curr_thing().parent().name);
         this.parent_thing_name_label().text(curr_thing().parent().name);
         $('#parent_thing_name_wrapper').attr('thing_id',curr_thing().parent().id);
+
+        //refresh children
+        this.clear_match_rows();
+
+        var children=curr_thing().children();
+
+        for (var i=0;i<children.length;i++) {
+            //collect immediate children for each child path for presentation as separate things
+            this.add_match_row(children[i].id)
+        }
+
+        //refresh tags
+
+        this.clear_tag_rows();
+
+        var tags = curr_thing().tags();
+
+        if (tags.length>0) {
+            $('#show_tags_link').show();
+        } else {
+            $('#show_tags_link').hide();
+        }
+
+        tags.each(function(){
+            curr_panel().add_tag_row($(this).find('key').text(),$(this).find('value').text())
+        })
+
+        var top_node_id = $('#xml_wrapper').find('context>top_node_thing_id').text();
+        //if current is the top_node
+        if (curr_thing().parent().id == top_node_id){
+            //refresh_with_spinner
+            refresh(curr_thing().parent().id);
+        }
 
     }
 
@@ -111,6 +155,8 @@ var thing = function (id){
 
         return thing_path;
     }
+
+    this.name = this.path().find('target>name').text();
 
     this.depth = function(){
         var path = this.path();
@@ -241,8 +287,6 @@ var thing = function (id){
         return matches;
     }
 
-    this.name = this.path().find('target>name').text();
-
     this.tags = function(){
         var tags = $('#xml_wrapper').find('things>thing').filter(function(){
             if ($(this).find('thing_id').text()==id) {
@@ -255,55 +299,6 @@ var thing = function (id){
         return tags;
     }
 
-    //this renders the thing on the panel
-    this.render = function() {
-        //register to server that user is navigating here
-        identify(this.id);
-
-        //update context to new thing
-        $('#xml_wrapper').find('context>thing_id').text(id);
-
-        //determine if thing has tags; if so, show tag option
-        if (this.tags().length>0) {
-            //show tag panel and clear out actual tag container for posible load
-            curr_panel().action_menu.show();
-        }
-
-        curr_panel().refresh();
-
-        //refresh children
-        curr_panel().clear_match_rows();
-
-        var children=this.children();
-
-        for (var i=0;i<children.length;i++) {
-            //collect immediate children for each child path for presentation as separate things
-            curr_panel().add_match_row(children[i].id)
-        }
-
-        //refresh tags
-
-        curr_panel().clear_tag_rows();
-
-        var tags = this.tags();
-
-        tags.each(function(){
-            curr_panel().add_tag_row($(this).find('key').text(),$(this).find('value').text())
-        })
-
-    //        var top_node = $('#xml_wrapper').find('context>top_node_thing_id');
-    //        var parent_thing = parent_thing_path.find('target>thing_id');
-    //        //if current is the top_node
-    //        if (id == top_node.text()){
-    //            //unless parent is at the top
-    //            if (parent_thing.length!=0) {
-    //                //refresh_with_spinner
-    //                refresh_with_spinner(parent_thing.text(),parent_thing_name_wrapper);
-    //            //set next parent as the top node
-    //            }
-    //        }
-
-    }
 }
 
 //helper methods
@@ -314,8 +309,9 @@ var curr_thing = function(){
 }
 
 var render_thing = function(me){
-    var th = new thing($(me).parent().attr('thing_id'));
-    th.render();
+    //update context to this thing
+    $('#xml_wrapper').find('context>thing_id').text($(me).parent().attr('thing_id'));
+    curr_panel().render();
 }
 
 var curr_panel = function(){
@@ -324,7 +320,7 @@ var curr_panel = function(){
 
 //events for page
 $(document).ready(function(){
-    curr_thing().render();
+    curr_panel().render();
 }
 )
 
@@ -542,22 +538,6 @@ function identify(id) {
     });
 }
 
-function refresh_with_spinner(id,el) {
-    //toggle spinner
-    toggle_spinner(el);
-    //loads xml into the specified level
-    $.ajax({
-        data: 'display=false',
-        dataType:'script',
-        type:'get',
-        url:'/things/' +id + '/search',
-        success: function() {
-            toggle_spinner(el);
-        }
-    });
-    return false;
-}
-
 function rename_thing() {
     var name = prompt('Enter New Name', '');
     if (name == null) return;
@@ -613,22 +593,52 @@ function delete_tag(me) {
     return false;
 }
 
-function search(me) {
+function refresh(new_id) {
+    
+    var prior_id = curr_thing().id;
+    
+    var term = $('#thing_search').val();
 
-    toggle_child_spinner();
-
-    var id = $('#xml_wrapper').find('context>thing_id').text();
-
-    var term = $(me).parent().find('input').val();
+    curr_panel().parent_thing_name_label().show();
+    curr_panel().parent_thing_name_spinner().show();
+    curr_panel().parent_thing_name_link().hide();
 
     $.ajax({
         data: 'search=' + term,
         dataType:'script',
         type:'get',
-        url:'/things/' + id + '/search',
+        url:'/things/' + new_id + '/search',
+        success: function(){
+            if (curr_thing().id == new_id) {
+                $('#xml_wrapper').find('context>thing_id').text(prior_id);
+                //set context back to prior ID as well to keep sync w server
+                identify(prior_id);
+            }},
+       complete: function(){
+            curr_panel().parent_thing_name_label().hide();
+            curr_panel().parent_thing_name_spinner().hide();
+            curr_panel().parent_thing_name_link().show();
+        }
+    }); return false;
+
+}
+
+function search(me) {
+
+    toggle_child_spinner();
+
+    var term = $(me).parent().find('input').val();
+
+    $('#xml_wrapper').find('context>search').text(term);
+    
+    $.ajax({
+        data: 'search=' + term,
+        dataType:'script',
+        type:'get',
+        url:'/things/' + curr_thing().id + '/search',
         success: function(){
             toggle_child_spinner();
-            var th=new thing(id);th.render();
+            curr_panel().render();
         }
     }); return false;
 }
