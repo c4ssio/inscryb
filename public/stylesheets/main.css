@@ -1,60 +1,84 @@
 root { 
-	display: block;
+    display: block;
 }
 
 body {
-	font: 12pt times, serif;
+    font: 8pt verdana;
 }
 
 input,
 select {
-	color: #444;
-	border: 1px solid black;
-	background: #eef;
-	padding: 0px;
-	margin: 0px;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
+    color: #444;
+    border: 1px solid black;
+    background: #eef;
+    padding: 0px;
+    margin: 0px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
 }
 
 input:hover,
 select:hover {
-	background: #fff;
+    background: #fff;
 }
 input:focus,
 select:focus {
-	background: #fff;
+    background: #fff;
 }
 
-.page_header {
-	background: #008000;
+.header_wrapper {
+    margin-left:15px;
+    background-color:white;
+    width:100%;
 }
 
 .page_header_text {
-        text-align: center;
-        vertical-align: middle;
-        height: 30px;
-        font-size: 120%;
-        font-weight:bold;
-        color: #FFF;
+    text-align: center;
+    vertical-align: middle;
+    height: 30px;
+    font-size: 120%;
+    font-weight:bold;
+    color: #FFF;
 }
 
-.target_group {
-	font-weight: bold;
-	font-size: 120%;
+.thing_header_wrapper {
+    font-weight: bold;
+    font-size: 120%;
+}
+
+.search_wrapper {
+    margin-left:15px;
+    background-color:#C1FF97;
+    border:thin solid;
 }
 
 a {
-	color: #44a;
-	text-decoration: none;
+    color: #44a;
+    text-decoration: none;
 }
 
 a:hover {
-	color: #008;
-	text-decoration: underline;
+    color: #008;
+    text-decoration: underline;
 }
 
-/* user login formatting */
+.page_wrapper{
+    margin-left:-25px;
+    background-color:white;
+    padding:5px;
+    width:235px;
+}
+.action_menu {
+    background-color:#DFFEFF;
+    width:100%;
+    border:solid thin;
+}
+
+.action_menu_item {
+    padding:0px 2px 0px 2px;
+    text-align:center;
+}
+/* user login formatting 
 .user_wrapper {
 	width: 100%;
 	color: #444;
@@ -70,34 +94,48 @@ a:hover {
 	margin-right: 0px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
+}*/
+
+.user_wrapper {
+    margin-left:20px;
+    margin-top:-10px;
+    padding-bottom:5px;
+    width:100%;
 }
+
+.user_wrapper_text {
+    text-align: left;
+    font-size: 12px;
+    color: white;
+}
+
 .user_name,
 .password {
-	float: left;
-	margin-right: 6px;
+    float: left;
+    margin-right: 6px;
 }
+
 
 /* main portion of screen formatting */
 .path,
-.search,
 .member_action_list,
 .add_panel,
 .tags_container {
-	width: 100%;
-	color: #444;
-	border-top: 2px solid #88a;
-	border-bottom: none;
-	border-left: none;
-	border-right: none;
-	background: #f8f8ff;
-	padding-left: 2px;
-	padding-right: 0px;
-	padding-top: 2px;
-	padding-bottom: 4px;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	margin-left: 0px;
-	margin-right: 0px;
+    width: 100%;
+    color: #444;
+    border-top: 2px solid #88a;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    background: #f8f8ff;
+    padding-left: 2px;
+    padding-right: 0px;
+    padding-top: 2px;
+    padding-bottom: 4px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
 }
 
 .path:hover,
@@ -105,20 +143,44 @@ a:hover {
 .member_action_list:hover,
 .new_tag_key_value:hover,
 .tags_container:hover {
-	background: #fafaff;
+    background: #fafaff;
 }
 
 .new_tag_key,
 .new_tag_value {
-	float: left;
-	margin-right: 6px;
+    float: left;
+    margin-right: 6px;
 }
 
-.small_link {font-size:10pt;font-weight:bold}
+.small_link {font-size:8pt;font-weight:bold}
 .small_link_disabled {font-size:10pt;color:gray}
 
-p {
-	margin-top: 2px;
-	margin-bottom: 2px;
-}
 
+/*rounded corners for spiffy box*/
+/* set the image to use and establish the lower-right position */
+.cssbox, .cssbox_body, .cssbox_head, .cssbox_head
+h2{ background: transparent url(../images/img.php.png) no-repeat bottom right}
+.cssbox{ /* intended total box width - padding-right(next) */ 
+         width:250px !important;
+         /* IE Win = width - padding */
+         width: 320px;
+         /* the gap on the right edge of the image (not content padding) */
+         padding-right:15px;
+         /* use to position the box */
+         margin:0px auto}
+/* set the top-right image */
+.cssbox_head{
+    background-position:top right;/* pull the right image over on top of border */
+    margin-right:-15px; /* right-image-gap + right-inside padding */
+    padding-right:30px} /* set the top-left image */
+.cssbox_head h2{ 
+    background-position:top left; margin:0; /* reset main site styles*/
+    color:white;
+    border:0; /* ditto */
+    /* padding-left = image gap + interior padding ... no padding-right */
+    padding:10px 0 15px 20px;
+    height:auto !important; height:1%} /* IE Holly Hack */ /* set the lower-left corner image */
+.cssbox_body{
+    background-position:bottom left;
+    margin-right:0px; /* interior-padding right */
+    padding:15px 0 15px 40px} /* mirror .cssbox_head right/left */

@@ -21,7 +21,6 @@ class Thing < ActiveRecord::Base
     indexes tags.blurb
   end
 
-
   def parent_nodes
     path=[]
     parent_id = self.parent_id
@@ -149,7 +148,7 @@ class Thing < ActiveRecord::Base
 
   def get_child_matches(search_str)
     if (!search_str || search_str=="") then
-      @child_matches = self.paths
+      @child_matches = []
     else
       @all_matches = Thing.search(search_str,:without=>{:parent_id=>0},:per_page=>1000).collect{|th| th.id}
       @child_matches = self.paths.select{|chpth|
@@ -163,7 +162,6 @@ class Thing < ActiveRecord::Base
       m.is_match=true if @child_matches.collect{|mm| mm.target}.include?(m.id)
     end
   end
-
 
   def self.import(args)
     #this is used for importing data files. Used by the add_starting_data migration

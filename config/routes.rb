@@ -31,7 +31,7 @@ ActionController::Routing::Routes.draw do |map|
   #   end
 
   # You can have the root of your site routed with map.root -- just remember to delete public/index.html.
-  map.root :controller => "places"
+  map.root :controller => "things"
 
   map.add_tag '/things/:id/add_tag', :controller=>'things', :action=>'add_tag', :conditions => {:method => :post}
   map.delete_tag '/things/:id/delete_tag', :controller=>'things', :action=>'delete_tag', :conditions => {:method => :post}

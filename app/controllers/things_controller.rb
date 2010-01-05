@@ -1,8 +1,14 @@
 class ThingsController < ApplicationController
 
   def index
+    identify
     search
     refresh
+    
+    respond_to do |wants|
+      wants.html
+      wants.xml {render :file=>'things/xml'}
+    end
   end
 
   def search
@@ -40,9 +46,11 @@ class ThingsController < ApplicationController
           end
         end
       end
-      #if there were no matches, populate parent paths with parent_nodes.
-      parent_paths = (@thing.parent_nodes + [@thing.id]
-      ).collect{|n| n.pth} if parent_paths.empty?
+      #populate parent paths with parent_nodes
+      parent_paths = (@thing.parent_nodes
+      ).collect{|n| n.pth} if child_matches.empty?
+
+      parent_paths << @thing.id.pth unless (parent_paths + child_matches).include?(@thing.id.pth)
 
       #add parent_paths with non-match tag
       parent_paths.each do |pp|
@@ -86,6 +94,7 @@ class ThingsController < ApplicationController
   end
 
   def add_tag
+    identify
     #check to determine whether tag already exists
     if @thing.tags.collect{|tg| {:key=>tg.key,:value=>tg.value } }.include?(
         {:key=>@_params[:key], :value=>@_params[:value]}) then
@@ -97,7 +106,7 @@ class ThingsController < ApplicationController
         @thing.at(@_params[:key].to_sym => @_params[:value], :creator_id=>session[:user].id)
       end
     end
-    render :nothing
+    render :nothing =>true
   end
 
   def clip
@@ -141,14 +150,7 @@ class ThingsController < ApplicationController
 
     if request.xhr?
       render :update do |page|
-        #these pieces change the display on the screen, which is the default;
-        #however, user has option of updating only the xml
-        unless (self.params[:display] && self.params[:display]=='false')
-          page.replace_html 'child_and_tag_wrapper', :file=>'things/refresh'
-          page.replace_html 'thing_header_wrapper', :partial=>'thing_header'
-        end
-        page.replace_html 'xml_wrapper', :partial=>'xml'
-        #hide edit elements unless user is authenticated and not searching`
+        page.replace_html 'xml_wrapper', :file=>'things/xml'
       end
     end
     

@@ -1,30 +1,68 @@
-<xml id="xml_wrapper" style="display:none">
-  <%= render :partial=>'xml' %>
-</xml>
-<!--user layer-->
-<div class="user_wrapper" id="user_wrapper">
-  <%=render :file=>'users/login'%>
-</div>
-<!--search layer-->
-<form onsubmit="search(this);return false;" action="#">
-  <div class="search">
-    <p><span>Search</span>
-      <%= image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
-      <%=text_field(:thing,:search, :size=>10)-%>
-      <%=submit_tag('Go')%>
-    </p>
+<!-- xml data island-->
+<%= render :file=>'things/xml' %>
+<!--page layer-->
+<div class="cssbox">
+  <div class="cssbox_head">
+    <h2>Inscryb
+    </h2>
+    <!--user layer-->
+    <div class="user_wrapper" id="user_wrapper">
+      <div class="user_wrapper_text">
+<%#=render :file=>'users/login' %>
+        <span>logged in as</span>
+        <span>cassio@inscryb.com</span>
+      </div>
+    </div>
+    <table class="header_wrapper">
+      <!--search layer-->
+      <tr>
+        <td class="search_wrapper">
+          <span>Search</span>
+          <%=image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
+          <%=text_field(:thing,:search, :size=>15)-%>
+          <%=button_to_function('Go','search(this)')%>
+        </td>
+      </tr>
+      <!-- path layer -->
+      <tr class="thing_header_wrapper" id="thing_header_wrapper">
+        <td>
+          <%=render :partial=>'thing_header' %>
+        </td>
+      </tr>
+      <tr class="actions" id="actions_wrapper">
+        <td>
+          <%=render :partial=>'actions'-%>
+        </td>
+      </tr>
+    </table>
   </div>
-</form>
-<!-- path layer -->
-<div class="target_group" id="thing_header_wrapper">
-  <%=render :partial=>'thing_header'%>
-</div>
-  <div class="actions" id="actions_wrapper">
-    <%=render :partial=>'actions' unless (session[:user].id==1)-%>
+  <div class="cssbox_body">
+    <table class="page_wrapper">
+      <tr>
+        <td id="child_loading_wrapper" style="display:none">
+          <img src="images/spinner.gif">
+        </td>
+      </tr>
+      <tr id="child_and_tag_wrapper" class="child_and_tag_wrapper">
+        <td>
+          <table class="child">
+            <tr>
+              <td>
+                <span>Please enter a search term above and click Go to load results.</span>
+              <td>
+            </tr>
+          </table>
+<%#=render :file=>'things/refresh' unless @no_search%>
+        </td>
+        <td>
+          <table class="tags" style="display:none">
+            <tr><td></td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </div>
-<div id="child_loading_wrapper" style="display:none">
-  <img src="images/spinner.gif">
 </div>
-<div id="child_and_tag_wrapper">
-  <%=render :file=>'things/refresh'%>
-</div>
+
+
+
