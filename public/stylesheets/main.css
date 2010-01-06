@@ -158,6 +158,22 @@ a:hover {
    font-size:8pt;font-weight:bold;margin-bottom:5px;padding-bottom:2px;
 }
 
+/*child rows*/
+table.child{
+    width:228px;
+    margin-right:-5px;
+    border:thin solid;
+}
+
+tr.child{
+    height:30px;
+    font-size:12pt;
+}
+
+td.child{
+    padding:10px 5px;
+    border:solid thin;
+}
 
 /*rounded corners for spiffy box*/
 /* set the image to use and establish the lower-right position */

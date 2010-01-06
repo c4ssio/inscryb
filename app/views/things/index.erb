@@ -15,7 +15,7 @@
       <!--search layer-->
       <tr>
         <td class="search_wrapper">
-          <span>Search</span>
+          <span style="font-weight:bold; margin-left:5px;">Search</span>
           <%=image_tag 'spinner.gif', :id=>'spinner', :style=>"display:none; float:right;"%>
           <%=text_field(:thing,:search, :size=>15)-%>
           <%=button_to_function('Go','search(this)')%>

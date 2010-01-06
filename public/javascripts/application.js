@@ -39,14 +39,14 @@ var panel = function (){
 
     this.add_tag_row = function(key,value){
         $('#child_and_tag_wrapper').find('table.tags').append(
-            '<tr class="tag">'+
-            '<td class="tag">'+
-            '<span class="tag_key">'+
-            key +
-            '</span><span> : </span>'+
-            '<span class="tag_value">'+
-            value +
-            '<span></span></span></td></tr>'
+            '<tr class="tag">'
+            +'<td class="tag">'
+            +'<span class="tag_key">'
+            +key
+            +'</span><span> : </span>'
+            +'<span class="tag_value">'
+            +value
+            +'<span></span></span></td></tr>'
             )
     }
 
@@ -62,24 +62,26 @@ var panel = function (){
     this.add_match_row = function(id){
         var row_thing = new thing(id);
 
-        var new_html='<tr class="child">'+
-        '<td class="child">'+
-        '<span class="nav_link" thing_id="' +row_thing.id + '">'+
-        '<a onclick="render_thing(this);return false;" href="#">' + row_thing.name + '</a></span>';
+        var new_html='<tr class="child">'
+        +'<td class="child">'
+        +'<span class="nav_link" thing_id="' +row_thing.id + '">'
+        +'<a onclick="render_thing(this);return false;" href="#">' + row_thing.name + '</a></span>';
 
         var row_thing_matches = row_thing.matches()
 
+        //main row section, including show/hide buttons
         if (row_thing_matches.length>0) {
-            new_html+=' (' + row_thing_matches.length + '): ' +
-            '<span class="prompt_link">' +
-            '<a onclick="toggle_matches(this);return false;" href="#">show</a>' +
-            '</span>' +
-            '<div thing_id="' + id + '" style="display:none">';
+            new_html+=' (' + row_thing_matches.length + '): '
+            +'<span class="prompt_link">'
+            +'<a onclick="toggle_matches(this);return false;" href="#" style="font-weight:bold;float:right;">show</a>'
+            +'</span>'
+            +'<div thing_id="' + id + '" style="display:none">';
             for (var i=0;i<row_thing_matches.length;i++){
-                new_html+='&nbsp;&nbsp;' + '<span class="nav_link" thing_id="' +
-                row_thing_matches[i].id + '">'+
-                '<a onclick="render_thing(this);return false;" href="#">' +
-                row_thing_matches[i].name + '</a></span>' + '<br/>';
+                new_html+=
+                '<br/>&nbsp;&nbsp;' + '<span class="nav_link" thing_id="'
+                +row_thing_matches[i].id +'">'
+                +'<a onclick="render_thing(this);return false;" href="#">'
+                +row_thing_matches[i].name + '</a></span>' + '<br/>';
             }
             new_html = new_html.slice(0,-2);
             new_html += '</div>';
