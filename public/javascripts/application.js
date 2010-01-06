@@ -73,20 +73,20 @@ var panel = function (){
         if (row_thing_matches.length>0) {
             new_html+=' (' + row_thing_matches.length + '): '
             +'<span class="prompt_link">'
-            +'<a onclick="toggle_matches(this);return false;" href="#" style="font-weight:bold;float:right;">show</a>'
-            +'</span>'
+            +'<a onclick="toggle_matches(this);return false;" href="#" style="font-weight:bold;">show</a>'
+            +'</span><br/>'
             +'<div thing_id="' + id + '" style="display:none">';
             for (var i=0;i<row_thing_matches.length;i++){
                 new_html+=
                 '<br/>&nbsp;&nbsp;' + '<span class="nav_link" thing_id="'
                 +row_thing_matches[i].id +'">'
                 +'<a onclick="render_thing(this);return false;" href="#">'
-                +row_thing_matches[i].name + '</a></span>' + '<br/>';
+                +row_thing_matches[i].name + '</a></span><br/>';
             }
             new_html = new_html.slice(0,-2);
             new_html += '</div>';
         }
-        new_html+='</td></tr>';
+        new_html+='<br/></td></tr>';
         $('#child_and_tag_wrapper').find('table.child').append(new_html)
     }
 
