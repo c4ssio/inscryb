@@ -4,8 +4,6 @@ $(document).ready(function(){
     $("#aboutButton").click(function(){
         showPage($("#about")[0]);
     })
-    $("li").each(function(){
-        
-    })
+    $("#twitter_link").click(function(){window.location.href="http://twitter.com/inscryb"})
 })
 
