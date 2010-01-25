@@ -1,7 +1,6 @@
 /*********************
 **** NearMe **********
 **********************
-Demo Application-specific code
 */
 
 var entities = {}
@@ -31,7 +30,6 @@ function init() {
 function show_vertical(vertical_index) {  
   _vertical_index = vertical_index
   var vertical = verticals[vertical_index]
-  $("#mapButton").show()
   $("#results").attr("title", vertical[1])
   location_query(_lat, _lon, '1km', vertical[0], 20, 
                  function(result) {
@@ -42,14 +40,33 @@ function show_vertical(vertical_index) {
                             var entity = result.entity[i]
                             entities[entity.guid] = entity
                             var address = entity['view.listing']['address']
-                            var li = '<li onclick="javasript:show_map_entity(\'' + entity.guid + '\')">'+
-                                     '<span class="entityName">' + entity.name + '</span> '+
-                                     '<br/><span class="entityAddress">' + address[0] + ', ' + address[1] + 
-                                     ' (' + entity['distance-from-origin'] + ')</span></li>'
-                            $("#results").append(li)
+                            var li = '<li onclick="javascript:show_place(\'' + entity.guid + '\')">'
+                                    +'<span class="entityName">' + entity.name + '</span> '
+                                    +'<br/><span class="entityAddress">' + address[0] + ', ' + address[1]
+                                    +' (' + entity['distance-from-origin'] + ')</span></li>';
+                            $("#results").append(li);
                           })
                    showPage($("#results")[0])
                  })
+}
+
+
+//Show a place
+function show_place(guid) {
+  var entity = entities[guid];
+  $("#place").attr("title", entity.name);
+  showPage($("#place")[0]);
+  $("#spinner").show();
+    $.ajax({
+        dataType:'script',
+        type:'get',
+        url:'/places/' + guid,
+        success: function(){
+        $("#spinner").hide();
+        },
+       complete: function(){
+        }
+    }); return false;
 }
 
 // Show a single entity on the map
@@ -318,8 +335,10 @@ function showPage(page)
         var title = pageHistory[pageHistory.length-2][1]
         homeButton.innerHTML = title.substring(0, 4) + '..' 
         homeButton.style.display = "inline"
+        $("#aboutButton").hide()
     } else {
         homeButton.style.display = "none"
+        $("#aboutButton").show()
     }
     var fromPage = currentPage;
         currentPage = page;

@@ -43,6 +43,8 @@ ActionController::Routing::Routes.draw do |map|
   map.rename_thing '/things/:id/rename_thing', :controller=>'things', :action=>'rename_thing', :conditions => {:method => :post}
   map.identify '/things/:id/identify', :controller=>'things', :action=>'identify', :conditions =>{:method => :post}
 
+  map.show_place '/places/:guid', :controller=>'places', :action=>'show', :conditions =>{:method => :post}
+
   map.resources :things
   map.resources :places
 

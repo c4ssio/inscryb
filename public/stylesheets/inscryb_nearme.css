@@ -71,6 +71,7 @@ body > ul > li > a {
     text-shadow: rgba(0, 0, 0, 0.6) 0px -1px 0;
     text-decoration: none;
     background: none;
+    cursor:pointer;
 }
 
 #homeButton {
@@ -83,11 +84,13 @@ body > ul > li > a {
 
 .vertical {
     font-weight: bold;
+    cursor: pointer;
 }
 
 .entityName {
     font-size: 14px;
     color: #000;
+    cursor: pointer;
 }
 
 .entityAddress {

@@ -4,6 +4,7 @@ class Thing < ActiveRecord::Base
   has_many :tags
   has_many :old_tags
   belongs_to :parent, :class_name=>'Thing',:foreign_key=>'parent_id'
+  belongs_to :place
   has_many :children, :class_name=>'Thing',:foreign_key=>'parent_id'
 
   attr_accessor :child_matches

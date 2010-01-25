@@ -1,0 +1,13 @@
+!!! Transitional
+%html
+    %head
+        %title Inscryb
+        %meta{:name=>"viewport",:content=>"width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0"}
+        =stylesheet_link_tag "main", :media=>"all"
+        =stylesheet_link_tag "inscryb_nearme"
+        %script{:type=>"text/javascript",:src=>"http://maps.google.com/maps/api/js?sensor=true"}
+        =javascript_include_tag "http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js"
+        =javascript_include_tag :defaults
+        =javascript_include_tag "json2"
+        =javascript_include_tag "inscryb_nearme"
+    %body=yield

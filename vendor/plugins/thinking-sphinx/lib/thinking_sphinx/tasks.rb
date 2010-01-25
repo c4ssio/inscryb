@@ -82,6 +82,8 @@ namespace :thinking_sphinx do
   
   desc "Stop Sphinx (if it's running), rebuild the indexes, and start Sphinx"
   task :rebuild => :app_env do
+    #cpl: added delete db/sphinx
+    FileUtils.remove_dir("#{RAILS_ROOT}/db/sphinx") if File.exists?("#{RAILS_ROOT}/db/sphinx")
     Rake::Task["thinking_sphinx:stop"].invoke if sphinx_running?
     Rake::Task["thinking_sphinx:index"].invoke
     Rake::Task["thinking_sphinx:start"].invoke
