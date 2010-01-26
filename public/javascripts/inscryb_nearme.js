@@ -19,7 +19,7 @@ var verticals = [ ['restaurants', 'Restaurants', 'restaurants'],
 function init() {
   $.each(verticals, function(i) {
     var li = '<li><a class="vertical" onclick="javascript:show_vertical(' + i + ')">' + 
-             '<img src="img/cat-' + verticals[i][2] + '18x.png"> '+
+             //'<img src="img/cat-' + verticals[i][2] + '18x.png"> '+
              verticals[i][1] + '</a></li>'
     $("#vertical_list").append(li)
   })
