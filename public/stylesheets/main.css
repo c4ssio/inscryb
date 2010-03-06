@@ -192,3 +192,7 @@ h2{ background: transparent url(../images/img.php.png) no-repeat bottom right}
     background-position:bottom left;
     margin-right:0px; /* interior-padding right */
     padding:15px 0 15px 40px} /* mirror .cssbox_head right/left */
+
+#guid_place{
+  display: none;
+}

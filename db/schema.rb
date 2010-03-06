@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091104234222) do
+ActiveRecord::Schema.define(:version => 20100110063707) do
 
   create_table "clipboard_members", :force => true do |t|
     t.integer  "user_id"
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(:version => 20091104234222) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "user_id",                                                  :default => 1
+    t.integer  "fixnum"
   end
 
   create_table "operations", :force => true do |t|
@@ -38,16 +39,14 @@ ActiveRecord::Schema.define(:version => 20091104234222) do
     t.datetime "updated_at"
   end
 
-  create_table "relationship_types", :force => true do |t|
-    t.string "value", :limit => 30
-  end
-
-  create_table "relationships", :force => true do |t|
-    t.integer  "src_thing_id",         :null => false
-    t.integer  "dest_thing_id",        :null => false
-    t.integer  "relationship_type_id", :null => false
+  create_table "places", :force => true do |t|
+    t.string   "guid"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "relationship_types", :force => true do |t|
+    t.string "value", :limit => 30
   end
 
   create_table "tags", :force => true do |t|
@@ -59,7 +58,7 @@ ActiveRecord::Schema.define(:version => 20091104234222) do
     t.date     "date"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id",                                                  :default => 1
+    t.integer  "creator_id",                                               :default => 1
   end
 
   create_table "term_group_members", :force => true do |t|
@@ -106,7 +105,15 @@ ActiveRecord::Schema.define(:version => 20091104234222) do
     t.integer  "parent_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id",                  :default => 1
+    t.integer  "place_id"
+  end
+
+  create_table "user_things", :force => true do |t|
+    t.integer  "user_id",                             :null => false
+    t.integer  "thing_id",                            :null => false
+    t.integer  "relationship_type_id", :default => 1, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "users", :force => true do |t|

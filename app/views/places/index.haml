@@ -8,7 +8,12 @@
     %div#map_canvas{:style=>"width: 300px; height: 300px;"}
 %ul#results{:title=>"Search Results"}
 %ul#place{:title=>"Place"}
-  %img#spinnner{:src=>'images/spinner.gif'}
+  %span#guid_place{}
+  %img#spinner{:src=>'images/spinner.gif'}
+  %textarea#question_box{:rows => 6, :cols => 30}
+  %br
+  %input#ask_button{:type => 'button', :value => 'Ask'}
+
 %ul#about{:title=>"About"}
   %li#about_text
     Inscryb allows you to add contacts, descriptions,

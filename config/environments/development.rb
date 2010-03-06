@@ -13,5 +13,19 @@ config.action_controller.consider_all_requests_local = true
 config.action_view.debug_rjs                         = true
 config.action_controller.perform_caching             = false
 
-# Don't care if the mailer can't send
+# Don't care if the mailer can't send (make this 'true' in production)
 config.action_mailer.raise_delivery_errors = false
+config.action_mailer.delivery_method = :smtp
+config.action_mailer.perform_deliveries = true    # Turn mail functionality on/off
+
+
+ActionMailer::Base.smtp_settings ={
+  :enable_starttls_auto => true,
+  :address => "smtp.gmail.com",
+  :port => 587,
+  :domain => "inscryb.com",
+  :authentication => :plain,
+  :user_name => "cassio.paesleme@gmail.com",
+  :password => "t0r1t0r4"
+
+}

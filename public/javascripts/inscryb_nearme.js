@@ -56,6 +56,7 @@ function show_place(guid) {
   var entity = entities[guid];
   $("#place").attr("title", entity.name);
   showPage($("#place")[0]);
+  $("#guid_place").text(guid);
   $("#spinner").show();
     $.ajax({
         dataType:'script',

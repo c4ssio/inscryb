@@ -45,6 +45,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.show_place '/places/:guid', :controller=>'places', :action=>'show', :conditions =>{:method => :post}
 
+  map.ask_place '/places/:guid/ask', :controller=>'places', :action=>'ask', :conditions =>{:method => :post}
+
   map.resources :things
   map.resources :places
 

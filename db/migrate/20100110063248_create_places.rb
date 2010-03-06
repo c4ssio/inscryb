@@ -1,7 +1,8 @@
 class CreatePlaces < ActiveRecord::Migration
   def self.up
     create_table :places do |t|
-      t.string :guid, :limit=>255
+      t.string :guid
+      t.string :email
       t.timestamps
     end
   end

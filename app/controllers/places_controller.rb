@@ -4,8 +4,19 @@ class PlacesController < ApplicationController
 
   def show
     #this retrieves all things at this place and returns them as json to the client
-    @place = Place.search(self.params[:id]).first
-    @place = Place.create(:guid=>self.params[:id]) unless @place
-    render :json=>@place.things.to_json
+    @place = Place.find_or_create_by_guid(self.params[:id])
+    render :nothing=>true
   end
+
+  def ask
+    email = Place.find_by_guid(self.params[:guid]).email
+    if email
+      PlaceMailer.deliver_question(self.params[:question],email)
+      response='OK'
+    else
+      response='no email'
+    end
+    render :json=>response.to_json
+  end
+
 end
